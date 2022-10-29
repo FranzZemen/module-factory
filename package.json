@@ -1,0 +1,44 @@
+{
+  "name": "@franzzemen/module-factory",
+  "version": "0.0.1",
+  "description": "A factory to load modules and retrieve JSON, factory functions and constructors",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FranzZemen/module-factory.git"
+  },
+  "keywords": [
+    "Module Factory",
+    "Factory",
+    "Module Factory Functions"
+  ],
+  "author": "Franz Zemen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FranzZemen/module-factory/issues"
+  },
+  "homepage": "https://github.com/FranzZemen/module-factory#readme",
+  "devDependencies": {
+    "@franzzemen/gulp-base": "^12.0.4",
+    "@franzzemen/npmu": "^2.0.16",
+    "@franzzemen/test": "1.0.3",
+    "@types/chai": "^4.3.3",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^18.11.0",
+    "chai": "^4.3.6",
+    "fastest-validator": "^1.15.0",
+    "gulp": "^4.0.2",
+    "gulp-mocha": "^8.0.0",
+    "mocha": "^10.1.0",
+    "typescript": "^4.8.4"
+  },
+  "dependencies": {
+    "@types/uuid": "^8.3.4",
+    "object-path": "^0.11.8",
+    "uuid": "^9.0.0"
+  }
+}

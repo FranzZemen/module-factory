@@ -1,0 +1,9 @@
+.idea
+.aws-sam
+*~
+node_modules
+*.zip
+release
+build
+publish
+testing
