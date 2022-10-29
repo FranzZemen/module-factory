@@ -124,25 +124,21 @@ export function isConstrainedModuleDefinition(module: any | ModuleDefinition): m
 }
 
 export const moduleDefinitionSchema = {
-  type: 'object',
-  optional: true,
-  props: {
-    moduleName: {
-      type: 'string',
-      optional: false
-    },
-    functionName: {
-      type: 'string',
-      optional: true
-    },
-    constructorName: {
-      type: 'string',
-      optional: true
-    },
-    propertyName: {
-      type: 'string',
-      optional: true
-    }
+  moduleName: {
+    type: 'string',
+    optional: false
+  },
+  functionName: {
+    type: 'string',
+    optional: true
+  },
+  constructorName: {
+    type: 'string',
+    optional: true
+  },
+  propertyName: {
+    type: 'string',
+    optional: true
   }
 };
 
