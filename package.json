@@ -1,6 +1,6 @@
 {
   "name": "@franzzemen/module-factory",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A factory to load modules and retrieve JSON, factory functions and constructors",
   "main": "index.js",
   "type": "module",
