@@ -142,6 +142,11 @@ export const moduleDefinitionSchema = {
   }
 };
 
+export const moduleDefinitionSchemaWrapper = {
+  type: 'object',
+  optional: true,
+  props: moduleDefinitionSchema
+}
 
 function validateSchema<T>(moduleName: string, moduleDef: ModuleDefinition, obj, log: ModuleFactoryLogger = console): T | Promise<T> {
   let validationCheck: AsyncCheckFunction | SyncCheckFunction;
