@@ -19,7 +19,7 @@ export const npmu  = (cb) => {
     }, {
       path: join(__dirname, '../npmu'), packageName: '@franzzemen/npmu',
     }, {
-      path: join(__dirname, './'), packageName: '@franzzemen/app-utility',
+      path: join(__dirname, './'), packageName: '@franzzemen/module-factory',
     }])
     .then(() => {
       console.log('cb...');
