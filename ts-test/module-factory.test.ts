@@ -2,8 +2,7 @@ import chai from 'chai';
 import Validator, {ValidationError, ValidationSchema} from 'fastest-validator';
 import 'mocha';
 import {dirname, join} from 'path';
-import {pathToFileURL} from 'url';
-import {fileURLToPath} from 'url';
+import {fileURLToPath, pathToFileURL} from 'url';
 import {inspect} from 'util';
 import {isPromise} from 'util/types';
 import {
@@ -25,50 +24,58 @@ let expect = chai.expect;
 
 const unreachableCode = false;
 
-describe('app-utility tests', () => {
-  describe('Load from module tests', () => {
-    describe('load-from-module.test', () => {
-      it('should validate module, not constrained module', done => {
+describe('module-factory', () => {
+  describe('module-factory.test', () => {
+    describe('module factory tests', () => {
+      it('should validate a module definition', () => {
+        const moduleDefinition: ModuleDefinition = {
+          moduleName: 'Hello',
+          moduleResolution: ModuleResolution.json,
+          loadSchema: TypeOf.Number,
+          constructorName: 'Hello',
+          functionName: 'Hello',
+          propertyName: 'Hello',
+          asyncFactory: true,
+          paramsArray: [
+            'hell', 5.0, {}
+          ]
+        }
+      });
+      it('should validate module, not constrained module', () => {
         const obj = {moduleName: 'SomeModule'};
         isModuleDefinition(obj).should.be.true;
         isConstrainedModuleDefinition(obj).should.be.false;
-        done();
       });
-      it('should fail to validate module', done => {
+      it('should fail to validate module', () => {
         const obj = {moduleName: 'SomeModule', functionName: 'someFunction', constructorName: 'someConstructor'};
         isModuleDefinition(obj).should.be.false;
         isConstrainedModuleDefinition(obj).should.be.false;
-        done();
       });
-      it('should fail to validate module', done => {
+      it('should fail to validate module', () => {
         const obj = {moduleName: 'SomeModule', functionName: 'someFunction', propertyName: 'someProperty'};
         isModuleDefinition(obj).should.be.false;
         isConstrainedModuleDefinition(obj).should.be.false;
-        done();
       });
-      it('should fail to validate module', done => {
+      it('should fail to validate module', () => {
         const obj = {moduleName: 'SomeModule', constructorName: 'someConstructor', propertyName: 'someProperty'};
         isModuleDefinition(obj).should.be.false;
         isConstrainedModuleDefinition(obj).should.be.false;
-        done();
       });
-      it('should fail to validate module for constrained function', done => {
+      it('should fail to validate module for constrained function', () => {
         const obj = {moduleName: 'SomeModule', functionName: 'someFunction'};
         isModuleDefinition(obj).should.be.true;
         isConstrainedModuleDefinition(obj).should.be.true;
-        done();
       });
-      it('should fail to validate module for constrained constructor', done => {
+      it('should fail to validate module for constrained constructor', () => {
         const obj = {moduleName: 'SomeModule', constructorName: 'someConstructor'};
         isModuleDefinition(obj).should.be.true;
         isConstrainedModuleDefinition(obj).should.be.true;
-        done();
       });
-      it('should fail to validate module for constrained property', done => {
+      it('should fail to validate module for constrained property', () => {
         const obj = {moduleName: 'SomeModule', constructorName: 'someProperty'};
         isModuleDefinition(obj).should.be.true;
         isConstrainedModuleDefinition(obj).should.be.true;
-        done();
+
       });
       it('should fail to load via module default from commonjs bad-extended with no function or constructor name', () => {
         try {
@@ -142,7 +149,7 @@ describe('app-utility tests', () => {
           });
 
       });
-      it('should load json with no schema check', done => {
+      it('should load json with no schema check', () => {
         const testJsonObj: any = loadJSONResource({
           moduleName: '../testing/test-json.json',
           moduleResolution: ModuleResolution.json
@@ -150,7 +157,7 @@ describe('app-utility tests', () => {
         (typeof testJsonObj).should.equal('object');
         testJsonObj.name.should.exist;
         testJsonObj.id.should.exist;
-        done();
+
       });
       it('should load json with passing schema check', () => {
         const loadSchema: LoadSchema = {

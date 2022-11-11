@@ -125,7 +125,7 @@ export function isConstrainedModuleDefinition(module: any | ModuleDefinition): m
   return isModuleDefinition(module) && (module.constructorName !== undefined || module.functionName !== undefined || module.propertyName !== undefined);
 }
 
-export const moduleDefinitionSchema = {
+export const moduleDefinitionSchema: ValidationSchema = {
   moduleName: {
     type: 'string',
     optional: false
@@ -141,16 +141,47 @@ export const moduleDefinitionSchema = {
   propertyName: {
     type: 'string',
     optional: true
-  }
+  },
+  moduleResolution: {
+    type: 'string',
+    optional: true,
+    pattern: /^json|commonjs|es$/
+  },
+  paramsArray: {
+    type: 'array',
+    optional: true,
+    items: 'any'
+  },
+  loadSchema: [{
+    type: 'object',
+    optional: true,
+    props: {
+      useNewCheckerFunction: {type: 'boolean', optional: true},
+      validationSchema: {type: 'any'}
+    }
+  }, {
+    type: 'class',
+    optional: true,
+    instanceOf: TypeOf
+  },{
+    type: 'function'
+  }]
 };
 
-export const moduleDefinitionSchemaWrapper = {
-  type: 'object',
-  optional: true,
-  props: moduleDefinitionSchema
+
+const check = new Validator({useNewCustomCheckerFunction: true}).compile(moduleDefinitionSchema);
+
+export function validateModuleDefinition(def: ModuleDefinition): true | ValidationError[] {
+  const result = check(def);
+  if(isPromise(result)) {
+    throw new Error('Result cannot be a promise when validating the actual module definition');
+  } else {
+    return result;
+  }
 }
 
-function validateSchema<T>(moduleName: string, moduleDef: ModuleDefinition, obj, log: ModuleFactoryLogger = console): T | Promise<T> {
+
+function validateRunTimeSchema<T>(moduleName: string, moduleDef: ModuleDefinition, obj, log: ModuleFactoryLogger = console): T | Promise<T> {
   let validationCheck: AsyncCheckFunction | SyncCheckFunction;
   if (moduleDef.loadSchema) {
     if (isTypeOf(moduleDef.loadSchema)) {
@@ -247,7 +278,7 @@ export function loadJSONResource<T>(moduleDef: ModuleDefinition, log: ModuleFact
         log.error(err);
         throw err;
       }
-      return validateSchema<T>(moduleDef.moduleName, moduleDef, jsonObject, log);
+      return validateRunTimeSchema<T>(moduleDef.moduleName, moduleDef, jsonObject, log);
     } else {
       const err = new Error(`${moduleDef.moduleName} does not point to a JSON string`);
       log.error(err);
@@ -272,7 +303,7 @@ function loadJSONPropertyFromModule<T>(module: any, moduleDef: ModuleDefinition,
             if (typeof jsonAsString === 'string') {
               const jsonObj: T = JSON.parse(jsonAsString);
               if (moduleDef.loadSchema) {
-                return validateSchema<T>(moduleDef.moduleName, moduleDef, jsonObj, log);
+                return validateRunTimeSchema<T>(moduleDef.moduleName, moduleDef, jsonObj, log);
               } else {
                 return jsonObj;
               }
@@ -287,7 +318,7 @@ function loadJSONPropertyFromModule<T>(module: any, moduleDef: ModuleDefinition,
         if (typeof jsonAsStringOrPromise === 'string') {
           const jsonObj: T = JSON.parse(jsonAsStringOrPromise);
           if (moduleDef.loadSchema) {
-            return validateSchema<T>(moduleDef.moduleName, moduleDef, jsonObj, log);
+            return validateRunTimeSchema<T>(moduleDef.moduleName, moduleDef, jsonObj, log);
           } else {
             return jsonObj;
           }
@@ -310,7 +341,7 @@ function loadJSONPropertyFromModule<T>(module: any, moduleDef: ModuleDefinition,
           if (typeof jsonAsString === 'string') {
             const jsonObj: T = JSON.parse(jsonAsString);
             if (moduleDef.loadSchema) {
-              return validateSchema<T>(moduleDef.moduleName, moduleDef, jsonObj, log);
+              return validateRunTimeSchema<T>(moduleDef.moduleName, moduleDef, jsonObj, log);
             } else {
               return jsonObj;
             }
@@ -324,7 +355,7 @@ function loadJSONPropertyFromModule<T>(module: any, moduleDef: ModuleDefinition,
       if (typeof resource === 'string') {
         const jsonObj: T = JSON.parse(resource);
         if (moduleDef.loadSchema) {
-          return validateSchema<T>(moduleDef.moduleName, moduleDef, jsonObj, log);
+          return validateRunTimeSchema<T>(moduleDef.moduleName, moduleDef, jsonObj, log);
         } else {
           return jsonObj;
         }
@@ -394,11 +425,11 @@ function loadInstanceFromModule<T>(module: any, moduleDef: ModuleDefinition, log
         moduleDef.asyncFactory = true;
         return t
           .then((tt: T) => {
-            return validateSchema<T>(moduleDef.moduleName, moduleDef, tt, log);
+            return validateRunTimeSchema<T>(moduleDef.moduleName, moduleDef, tt, log);
           });
       } else {
         moduleDef.asyncFactory = false;
-        return validateSchema<T>(moduleDef.moduleName, moduleDef, t, log);
+        return validateRunTimeSchema<T>(moduleDef.moduleName, moduleDef, t, log);
       }
     } else {
       const err = new Error(`moduleDef.functionName ${moduleDef.functionName} provided but does not resolve to a function`);
@@ -415,7 +446,7 @@ function loadInstanceFromModule<T>(module: any, moduleDef: ModuleDefinition, log
       } else {
         t = new constructorFunction();
       }
-      return validateSchema<T>(moduleDef.moduleName, moduleDef, t, log);
+      return validateRunTimeSchema<T>(moduleDef.moduleName, moduleDef, t, log);
     } else {
       const err = new Error(`moduleDef.constructorName ${moduleDef.constructorName} provided but does not resolve to a constructor`);
       log.error(err);
