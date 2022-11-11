@@ -341,7 +341,7 @@ function loadJSONPropertyFromModule<T>(module: any, moduleDef: ModuleDefinition,
   }
 }
 
-export function loadJSONFromPackage<T>(moduleDef: ModuleDefinition, log: ModuleFactoryLogger = console): T | Promise<T> {
+export function loadJSONFromModule<T>(moduleDef: ModuleDefinition, log: ModuleFactoryLogger = console): T | Promise<T> {
   const functionName = moduleDef?.functionName?.trim();
   const propertyName = moduleDef?.propertyName?.trim();
   if (moduleDef?.moduleName && (functionName?.length || propertyName?.length)) {

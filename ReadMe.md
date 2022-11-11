@@ -3,7 +3,7 @@
 module-factory is a factory pattern that supports injecting factory objects dynamically from other modules. It finds use
 in projects that leverage plugins but don't want to statically install all or any plugins, for example.
 
-# Load a JSON resource
+# Inject a JSON resource
 
 ```` 
 // someFile.json
@@ -22,6 +22,25 @@ function loadJSONResource<T>(moduleDef: ModuleDefinition, log: ModuleFactoryLogg
 let obj = loadJsonResource({
   moduleName: 'somePath/someFile.json', moduleResolution: 'json'
 });
+````
+
+Here somePath is relative to the location of module-factory. This is usually in the root node-modules, in the directory
+@franzzemen/module-factory. Thus, normally the path will begin with '../../../' back to the root of the project from
+which one can append the remaining path. To do this automatically so that it always works:
+
+```` javascript
+import {join} from 'node:path';
+import {pathToFileURL} from 'node:url';
+// For CommonJS Environments __dirname is built in
+// =====> Start ES6 Module Environments
+import {pathToFileURL} from 'node:url';
+import {dirname} from 'node:path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// End ES6 Module Environments <=====
+
+const moduleName = pathToFileURL(join(__dirname, 'yourRelativePathTo/someFile.json')).toString();
+
 ````
 
 Of course this is only syntactical sugar (if even that) over
@@ -46,10 +65,10 @@ let obj = loadJsonResource({
 ````
 
 Currently, module-factory supports the fastest-validator package as it is simply said the fastest validator out there as
-of this edit (2022). If you have a favorite package you would like integrate, please let us know. Time permitting we 
+of this edit (2022). If you have a favorite package you would like integrate, please let us know. Time permitting we
 have plans to add others such as zod.
 
-For json validation, the loadSchema can point to the schema as shown above or to the check function (a much faster 
+For json validation, the loadSchema can point to the schema as shown above or to the check function (a much faster
 alternative when expecting to reuse the schema).
 
 ```` typescript
@@ -63,67 +82,107 @@ const check = new Validator().compile(validationSchema);
 let obj = loadJsonResource({moduleName: 'somePath/someFile.json', moduleResolution: 'json', loadSchema: check});
 ````
 
-# Load JSON from a factory module
+# Inject JSON from a factory module
+
+Get JSON from a top level property in an installed module of your choice. Regardless of whether you provide a loadSchema
+in the module definition, JSON is guaranteed or an error is thrown.
+
+*** Important - the property MUST point to a string containing JSON (stringified JSON). If you want to load an object
+see further down ***
 
 ```` typescript
-function loadJSONFromPackage<T>(moduleDef: ModuleDefinition, log: ModuleFactoryLogger = console): T | Promise<T>
-loadJSONResource<T>(moduleDef: ModuleDefinition, log: ModuleFactoryLogger = console): T | Promise<T>
+function loadJSONFromModule<T>(moduleDef: ModuleDefinition, log?: ModuleFactoryLogger): T | Promise<T> {}
 
+let obj = loadJSONFromModule({
+  moduleName: '@franzzemen/test-commonjs',
+  propertyName: 'jsonStr',
+  moduleResolution: 'commonjs'
+});
 ````
-# Get a value from a factory module
 
-   let obj = load
+Or from a nested property in a relative module (the nesting syntax leverages object-path).
+
+```` typescript
+function loadJSONFromModule<T>(moduleDef: ModuleDefinition, log?: ModuleFactoryLogger): T | Promise<T> {}
+
+let obj = loadJSONFromModule({
+  moduleName: 'somePath/test-commonjs',
+  propertyName: 'nestedJsonStr.jsonStr',
+  moduleResolution: 'commonjs'
+});
+````
+
+Noting that somePath has the same treatment as above.
+
+# Inject any value from a factory module
+
+Inject a value using a factory function from an installed or relative module:
+
+```` typescript
+// In 'someModule', an es module
+function getSomeStringFactory(): string {
+   return 'Thread + uuid()';
+}
+````
+
+Using ES6 module loader
+
+```` typescript
+function loadFromModule<T>(moduleDef: ModuleDefinition, log?: ModuleFactoryLogger): T | Promise<T> {}
+
+// Returns a promise because we're dynamically loading an ES6 module.  That would not be the case for json module resolution
+loadFromModule({
+   moduleName: 'someModule',
+   functionName: 'getSomeStringFactory',
+   moduleResolution: ModuleResolution.es,
+   loadSchema: TypeOf.String
+}).then((value:string) => {
+   console.log(`The value is ${value}`);
+}).error(err => {
+   console.warn(`Most likely not a string?`);
+   console.error(err);
+});
+````
+
+Using commonjs module loader
+```` typescript
+const str = loadFromModule({
+  moduleName: 'someModule',
+  functionName: 'getSomeStringFactory',
+  moduleResolution: ModuleResolution.json,
+  loadSchema: TypeOf.String
+})
+````
+
+Or using commonjs module loader with async factory function
+
+```` typescript
+// In 'someModule', a commonjs module
+function getSomeStringFactory(): Promise<string> {
+   return Promise.resolve('Thread + uuid()');
+}
+````
+```` typescript
+function loadFromModule<T>(moduleDef: ModuleDefinition, log?: ModuleFactoryLogger): T | Promise<T> {}
+
+// Returns a promise because the factory function does.  
+loadFromModule({
+   moduleName: 'someModule',
+   functionName: 'getSomeStringFactory',
+   moduleResolution: ModuleResolution.json,
+   loadSchema: TypeOf.String
+}).then((value:string) => {
+   console.log(`The value is ${value}`);
+}).error(err => {
+   console.warn(`Most likely not a string?`);
+   console.error(err);
+});
+````
 
 
 
-## Load some JSON without validation
 
-Contents of example-json.json:
 
-      {
-         "key": "key1", 
-         "value": "value1"
-      }
-
-Code:
-
-      type TestObj = {key:string, value:string};
-
-      // 'as TestObj' because we know it's not a promise
-      let obj = loadJSONResource<TestObj>({
-                     moduleName: '../testing/example-json.json', 
-                     moduleResolution: ModuleResolution.json}) as TestObj; 
-      console.log(inspect(obj,false,5), 'Example 1 output');
-
-Console output:
-
-      { key: 'key1', value: 'value1' } Example 1 output
-
-## Load some JSON with schema validation
-
-Same problem as above, but we validate using fastest-validator and a LoadSchema:
-
-      const loadSchema: LoadSchema = {
-      validationSchema: {
-      key: {type: 'string'},
-      value: {type: 'number'}
-      }, useNewCheckerFunction: false
-      };
-
-      const obj = loadJSONResource<TestObj>({
-         moduleName: '../testing/example-json.json',
-         moduleResolution: ModuleResolution.json,
-         loadSchema
-      }) as TestObj;
-
-This will throw an error with console output including:
-
-      {
-         type: 'number',
-         message: "The 'value' field must be a number.",
-         field: 'value',
-         actual: 'value1'
-      }
 
 ## Other examples
 
@@ -139,7 +198,7 @@ This package is published for an ECMAScript module loader. For CommonJS see belo
 
 ### ECMAScript
 
-    import {ModuleDefintion, loadFromModule, loadJSONFromPackage, loadJSONResource} from '@franzzemen/module-factory';
+    import {ModuleDefintion, loadFromModule, loadJSONFromModule, loadJSONResource} from '@franzzemen/module-factory';
 
 ## CommonJS
 
@@ -149,7 +208,7 @@ This package is published for an ECMAScript module loader. For CommonJS see belo
     import('@franzzemen/module-factory')
         .then(package => {
             const loadFromModule = package.loadFromModule,
-            const loadJSONFromPackage = package.loadJSONFromPackage,
+            const loadJSONFromModule = package.loadJSONFromModule,
             const loadJSONResource = package.loadJSONResource
             ....
         }
