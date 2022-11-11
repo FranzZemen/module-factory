@@ -1,6 +1,9 @@
 import chai from 'chai';
 import Validator, {ValidationError, ValidationSchema} from 'fastest-validator';
 import 'mocha';
+import {dirname, join} from 'path';
+import {pathToFileURL} from 'url';
+import {fileURLToPath} from 'url';
 import {inspect} from 'util';
 import {isPromise} from 'util/types';
 import {
@@ -14,6 +17,8 @@ import {
   ModuleResolution,
   TypeOf
 } from '../publish/index.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 let should = chai.should();
 let expect = chai.expect;
@@ -87,9 +92,25 @@ describe('app-utility tests', () => {
           unreachableCode.should.be.true;
         }
       });
-      it('should load a via module function from es extended', () => {
+      it('should load a via module function from relative es extended', () => {
         const result = loadFromModule<any>({
           moduleName: '../testing/extended.js',
+          functionName: 'create2',
+          moduleResolution: ModuleResolution.es
+        });
+        expect(result).to.exist;
+        isPromise(result).should.be.true;
+        return result.then(res => {
+          res.name.should.equal('Test');
+        }, err => {
+          unreachableCode.should.be.true;
+        });
+      });
+      it('should load a via module function from absolute es extended', () => {
+        const moduleName = pathToFileURL(join(__dirname, '../testing/extended.js')).toString();
+        console.log(`MODULE_NAME = ${moduleName}`);
+        const result = loadFromModule<any>({
+          moduleName,
           functionName: 'create2',
           moduleResolution: ModuleResolution.es
         });

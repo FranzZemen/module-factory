@@ -1,13 +1,36 @@
 # Read Me
 
-This package supports loading instances from other modules, both published and relative.  It's a form of injection 
-that is convenient for projects where functional extensions are intrinsic to the solution, for example rules engines,
-state process engines etc.
+module-factory is a factory pattern that supports injecting factory objects dynamically from other modules.  It 
+finds use in projects that leverage plugins but don't want to statically install all or any plugins, for example.
+
+Load a JSON resource
+
+````
+   let obj = loadJsonResource({
+      moduleName: 'somePath/someFile.json', moduleResolution: 'json'
+   });
+   
+````
+
+
+
+Example 1:  Dynamically load JSON from a relative file (as is, just a wrapper around require(...)).
+
+      let obj = loadJSONResource{moduleName: 'somePath/someFile.json', moduleResolution: 'json'});
+
+Example 2:  Validate JSON after loading it
+
+      let obj = loadJSONResource
+
+
+This package supports loading instances from other modules, both published and relative. It's a form of injection that
+is convenient for projects where functional extensions are intrinsic to the solution, for example rules engines, state
+process engines etc.
 
 ## Load some JSON without validation
-      
+
 Contents of example-json.json:
-      
+
       {
          "key": "key1", 
          "value": "value1"
@@ -24,7 +47,7 @@ Code:
       console.log(inspect(obj,false,5), 'Example 1 output');
 
 Console output:
-      
+
       { key: 'key1', value: 'value1' } Example 1 output
 
 ## Load some JSON with schema validation
@@ -63,12 +86,11 @@ npm i @franzzemen/module-factory
 
 # Usage
 
-This package is published for an ECMAScript module loader.  For CommonJS see below.
+This package is published for an ECMAScript module loader. For CommonJS see below.
 
 ### ECMAScript
 
     import {ModuleDefintion, loadFromModule, loadJSONFromPackage, loadJSONResource} from '@franzzemen/module-factory';
-
 
 ## CommonJS
 
@@ -83,18 +105,17 @@ This package is published for an ECMAScript module loader.  For CommonJS see bel
             ....
         }
 
-
 # Load From Module
 
-The @franzzemen packages often provide extensible functionality which can be defined externally and loaded 
-dynamically. The load-from-module module provides that capability:
+The @franzzemen packages often provide extensible functionality which can be defined externally and loaded dynamically.
+The load-from-module module provides that capability:
 
-1. Load a JSON object. This is the simplest format, and pretty much just encapsulates require(jason url) with some 
+1. Load a JSON object. This is the simplest format, and pretty much just encapsulates require(jason url) with some
    optional validation;
 2. Load a JSON object from another package. JSON can be loaded from another package that may provide statically or
    dynamically.
-3. Load a factory object to obtain a new instance of some object. A factory is exposed either as a factory function 
-   or a constructor and a new instance of the object is created from those.
+3. Load a factory object to obtain a new instance of some object. A factory is exposed either as a factory function or a
+   constructor and a new instance of the object is created from those.
 
 ## Module Definition
 
@@ -111,7 +132,7 @@ The Module Definition specification is:
     };
 
     where:
-        moduleName:         The moduleName is the name of either an installed package or a relative path, or JSON file.
+        moduleName:         The moduleName is the name of either an installed package or an absolute or  relative path,or JSONfile.
         functionName:       The name of the factory function in the loaded module.  Not used for JSON files.  
         constructorName:    The name of the factory constructor in the loaded module.  Not used for JSON files or modules providing JSON properties.
         propertyName:       The name of a JSON property in the loaded module
@@ -120,10 +141,11 @@ The Module Definition specification is:
         loadSchema:         A validation method for the loaded object
 
 The functionName, constructorName and propertyName may contain dot notation to obtain it within the target package, for
-example 'myFunctions.someFactoryFunction', where the package exports 'myFunctions', but the factory function is a 
-property therein.  In fact any format used by the package 'object-path' should work.
+example 'myFunctions.someFactoryFunction', where the package exports 'myFunctions', but the factory function is a
+property therein. In fact any format used by the package 'object-path' should work.
 
 ## Module Resolution
+
 With the advent of support for ES modules, module resolution specification becomes important, whereas prior to this
 commonjs was assumed. ES modules cannot dynamically import from other modules without becoming asynchronous, through the
 import() build in method. CommonJS modules can can be imported synchronously via require/createRequire from either.
@@ -132,19 +154,24 @@ Rather than try and parse the outcome, a module resolution specification is requ
 is missing or a commonjs specification, commonjs is assumed. Thus loading from a module anything but JSON will convert
 processing to asynchronous if the target is an ES module.
 
-When using relative paths for ES modules, remember to affix the ".js" suffix to the moduleName.  For commonjs this
-can be omitted, but it is a standard for ES modules.
+When using relative paths for ES modules, remember to affix the ".js" suffix to the moduleName. For commonjs this can be
+omitted, but it is a standard for ES modules.
 
 ### Relative Paths
+
 Because ultimately require or import() will be used, moduleName is an installed package, a URL, an absolute path, or it
-is relative to the location of the @franzzemen/app-utility/load-from-module.js module, per node standard. Since most of
-the time one would be using relative paths from a given package, the relative path would normally begin with '../../../'
-to travel back to app-utility then to @franzzemen and finally out of the top node_modules folder.
+is relative to the location of the @franzzemen/module-factory module, per node standard.
+
+S1ince most of the time one would be using relative paths from a given package, the relative path would normally begin
+with '../../../' to path back out of directories factory-module, @franzzemen, and node_modules. To that one would add
+the path to the desired file module.
 
 For relative paths, it is important to remember that if you let your node packages fall out of sync, you may end up with
 @franzzemen packages in nested node_module folders. Either a) keep your packages will updated or only import the top
 most @franzzemen package you need that itself will install @franzzemen/app-utility, OR don't use relative paths.  
 Otherwise, depending on which node_modules is used by the package loader, your relative paths may not be right.
+
+Most will not want to resolve the relative path from @franzzemen/module-factory
 
 ## Loading JSON
 
@@ -152,10 +179,10 @@ Otherwise, depending on which node_modules is used by the package loader, your r
 
     Noting that tthe method will not return a Promise so long as moduleDef.loadSchema, if provided, does not create an async result.
 
-This wraps the normal way of loading JSON with "require", adding the ability to validate on load  
+This wraps the normal way of loading JSON with "require", adding the ability to validate on load
 
 If a validation schema has been provided, and that schema is marked for asynchronous validation, a Promise to the JSON
-object is returned.  The same holds true if a CheckFunction is provided and it is an AsyncCheckFunction.  An exception is
+object is returned. The same holds true if a CheckFunction is provided and it is an AsyncCheckFunction. An exception is
 thrown if the object cannot be loaded or if it doesn't validate (with appropriate logging).
 
 From a security perspective, validation is not as critical as when loanding an object from a factory function, because
@@ -165,17 +192,17 @@ the returned object is stringified and parsed, which will only result in non-fun
 
     loadInstanceFromModule<T>(module: any, moduleDef: ModuleDefinition, log: ModuleFactoryLogger = console): T | Promise<T>
 
-If a factory function 'functionName' is specified the propertyName will be ignored.  In this case, the function will
-be retrieved and called to get the object.  The factory function must not be asynchronous (must not return a Promise).
+If a factory function 'functionName' is specified the propertyName will be ignored. In this case, the function will be
+retrieved and called to get the object. The factory function must not be asynchronous (must not return a Promise).
 
-IMPORTANT NOTE:  The returned JSON from the factory function is expected to be a **string**, not an object! Parsing
-is done by **this** package, to avoid this function being abused.
+IMPORTANT NOTE:  The returned JSON from the factory function is expected to be a **string**, not an object! Parsing is
+done by **this** package, to avoid this function being abused.
 
-As mentioned, if moduleResolution is 'es' for the target module, the code will transition to asynchronous, and
-return a Promise.  You will therefore need to be able to handle promises or make a decision that your modules will
-always be 'commonjs' and throw an error on Promise.
+As mentioned, if moduleResolution is 'es' for the target module, the code will transition to asynchronous, and return a
+Promise. You will therefore need to be able to handle promises or make a decision that your modules will always be '
+commonjs' and throw an error on Promise.
 
-Because any validations specified in the ModuleDefinition can be asynchronous, a Promise can also be returned in that 
+Because any validations specified in the ModuleDefinition can be asynchronous, a Promise can also be returned in that
 case.
 
 From a security perspective, validation is not as critical as when loading an object from a factory function, because
@@ -185,16 +212,15 @@ the returned value from the function is a string and parsed after it is obtained
 
     loadFromModule<T>(moduleDef: ModuleDefinition, log: ModuleFactoryLogger = console): T | Promise<T> 
 
-
-This loads the target module and creates a new instance, using either the factory function or constructor supplied.  If
-the function name is provided, the constructor name will be ignored.  
+This loads the target module and creates a new instance, using either the factory function or constructor supplied. If
+the function name is provided, the constructor name will be ignored.
 
 If the loaded module is of type 'es', or if any validation is asynchronous, a Promise will be returned.
 
 The moduleDefinition can contain a validation method that could also cause the processing to return a Promise
 
 The functionName of the moduleDefinition can point to a nested element of the module if the "." operator is used
-(uses object-path syntax).  
+(uses object-path syntax).
 
 From a security perspective, providing validation method is recommended.
 
