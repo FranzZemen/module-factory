@@ -1,46 +1,80 @@
 # Read Me
 
-module-factory is a factory pattern that supports injecting factory objects dynamically from other modules.  It 
-finds use in projects that leverage plugins but don't want to statically install all or any plugins, for example.
+module-factory is a factory pattern that supports injecting factory objects dynamically from other modules. It finds use
+in projects that leverage plugins but don't want to statically install all or any plugins, for example.
 
-Load a JSON resource
-
+# Load a JSON resource
 
 ```` 
-   someFile.json
+// someFile.json
 ````
 
-```` json
-   someFile.json
-   
-   {
-      "price": 5.0,
-      "ticker": "ZEM"
-   }
+```` json   
+{
+  "price": 5.0,
+  "ticker": "ZEM"
+}
 ````
+
+```` typescript 
+function loadJSONResource<T>(moduleDef: ModuleDefinition, log: ModuleFactoryLogger = console): T | Promise<T>  {//...}
+
+let obj = loadJsonResource({
+  moduleName: 'somePath/someFile.json', moduleResolution: 'json'
+});
+````
+
+Of course this is only syntactical sugar if (even that) over
+
+```` javascript
+  require('someFile.json');
+````
+
+But you can also add a validation apart from ensuring it is true json:
 
 ```` typescript
-   let obj = loadJsonResource({
-      moduleName: 'somePath/someFile.json', moduleResolution: 'json'
-   });
+let obj = loadJsonResource({
+  moduleName: 'somePath/someFile.json',
+  moduleResolution: ModuleResolution.json,
+  loadSchema: {
+    validationSchema: {
+      price: {type: 'number'},
+      ticker: {type: 'string'}
+    }
+  }
+});
 ````
 
+Currently, module-factory supports the fastest-validator package as it is simply said the fastest validator out there as
+of this edit (2022). If you have a favorite package you would like integrate, please let us know. Time permitting we 
+have plans to add others such as zod.
 
-Doing only 
+For json validation, the loadSchema can point to the schema as shown above or to the check function (a much faster 
+alternative when expecting to reuse the schema).
+
+````
+const validationSchema: ValidationSchema = {
+  price: {type: 'number'},
+  ticker: {type: 'string'}
+}
+   
+const check = new Validator().compile(validationSchema);
+   
+let obj = loadJsonResource({moduleName: 'somePath/someFile.json', moduleResolution: 'json', loadSchema: check});
+````
+
+# Load JSON from a factory module
+
+````
+function loadJSONFromPackage<T>(moduleDef: ModuleDefinition, log: ModuleFactoryLogger = console): T | Promise<T>
+loadJSONResource<T>(moduleDef: ModuleDefinition, log: ModuleFactoryLogger = console): T | Promise<T>
+
+````
+# Get a value from a factory module
+
+   let obj = load
 
 
-Example 1:  Dynamically load JSON from a relative file (as is, just a wrapper around require(...)).
-
-      let obj = loadJSONResource{moduleName: 'somePath/someFile.json', moduleResolution: 'json'});
-
-Example 2:  Validate JSON after loading it
-
-      let obj = loadJSONResource
-
-
-This package supports loading instances from other modules, both published and relative. It's a form of injection that
-is convenient for projects where functional extensions are intrinsic to the solution, for example rules engines, state
-process engines etc.
 
 ## Load some JSON without validation
 

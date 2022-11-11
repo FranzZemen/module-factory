@@ -40,7 +40,7 @@ export enum ModuleResolution {
 
 export interface LoadSchema {
   validationSchema: ValidationSchema;
-  useNewCheckerFunction: boolean;
+  useNewCheckerFunction?: boolean;
 }
 
 export class TypeOf extends Set<string> {
