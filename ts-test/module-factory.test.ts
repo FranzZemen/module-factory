@@ -10,7 +10,7 @@ import {
   isConstrainedModuleDefinition,
   isModuleDefinition,
   loadFromModule,
-  loadJSONFromPackage,
+  loadJSONFromModule,
   loadJSONResource,
   LoadSchema,
   ModuleDefinition,
@@ -351,7 +351,7 @@ describe('app-utility tests', () => {
           propertyName: 'jsonStr',
           moduleResolution: ModuleResolution.es
         };
-        const objPromise = loadJSONFromPackage(moduleDef);
+        const objPromise = loadJSONFromModule(moduleDef);
         objPromise.should.exist;
         if (isPromise(objPromise)) {
           objPromise
@@ -370,7 +370,7 @@ describe('app-utility tests', () => {
           propertyName: 'nestedJsonStr.jsonStr',
           moduleResolution: ModuleResolution.es
         };
-        const objPromise = loadJSONFromPackage(moduleDef);
+        const objPromise = loadJSONFromModule(moduleDef);
         objPromise.should.exist;
         if (isPromise(objPromise)) {
           objPromise
