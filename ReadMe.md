@@ -5,13 +5,24 @@ finds use in projects that leverage plugins but don't want to statically install
 
 Load a JSON resource
 
+
+```` json
+   someFile.json
+   
+   {
+      "price": 5.0,
+      "ticker": "ZEM"
+   }
+````
+
 ```` typescript
    let obj = loadJsonResource({
       moduleName: 'somePath/someFile.json', moduleResolution: 'json'
    });
-   
 ````
 
+
+Doing only 
 
 
 Example 1:  Dynamically load JSON from a relative file (as is, just a wrapper around require(...)).
