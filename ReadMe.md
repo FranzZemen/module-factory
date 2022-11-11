@@ -24,7 +24,7 @@ let obj = loadJsonResource({
 });
 ````
 
-Of course this is only syntactical sugar if (even that) over
+Of course this is only syntactical sugar (if even that) over
 
 ```` javascript
   require('someFile.json');
@@ -52,7 +52,7 @@ have plans to add others such as zod.
 For json validation, the loadSchema can point to the schema as shown above or to the check function (a much faster 
 alternative when expecting to reuse the schema).
 
-````
+```` typescript
 const validationSchema: ValidationSchema = {
   price: {type: 'number'},
   ticker: {type: 'string'}
@@ -65,7 +65,7 @@ let obj = loadJsonResource({moduleName: 'somePath/someFile.json', moduleResoluti
 
 # Load JSON from a factory module
 
-````
+```` typescript
 function loadJSONFromPackage<T>(moduleDef: ModuleDefinition, log: ModuleFactoryLogger = console): T | Promise<T>
 loadJSONResource<T>(moduleDef: ModuleDefinition, log: ModuleFactoryLogger = console): T | Promise<T>
 
