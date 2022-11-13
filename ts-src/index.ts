@@ -1,7 +1,5 @@
 import Validator, {AsyncCheckFunction, SyncCheckFunction, ValidationError, ValidationSchema} from 'fastest-validator';
-import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
-import {join} from 'path';
 import {isPromise} from 'util/types';
 
 export interface ModuleFactoryLogger {
@@ -16,7 +14,7 @@ export interface ModuleFactoryLogger {
   trace(data, message?: string, ...params);
 }
 
-
+// @ts-ignore As our build system doesn't set target in base tsconfig.json
 const requireModule = createRequire(import.meta.url);
 const objectPath = requireModule('object-path');
 

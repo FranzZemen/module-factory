@@ -15,8 +15,10 @@ import {
   ModuleDefinition,
   ModuleResolution,
   TypeOf
-} from '../publish/index.js';
+  // @ts-ignore As our build system doesn't set target in base tsconfig.json
+} from '@franzzemen/module-factory';
 
+// @ts-ignore As our build system doesn't set target in base tsconfig.json
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 let should = chai.should();
@@ -80,7 +82,7 @@ describe('module-factory', () => {
       it('should fail to load via module default from commonjs bad-extended with no function or constructor name', () => {
         try {
           const result = loadFromModule<any>({
-            moduleName: '../testing/bad-extended.cjs',
+            moduleName: '../../../testing-mjs/bad-extended.cjs',
             moduleResolution: ModuleResolution.commonjs
           });
           unreachableCode.should.be.true;
@@ -91,7 +93,7 @@ describe('module-factory', () => {
       it('should load via module default from commonjs bad-extended with no function or constructor name, using default for function name', () => {
         try {
           const result = loadFromModule<any>({
-            moduleName: '../testing/bad-extended.cjs',
+            moduleName: '../../../testing-mjs/bad-extended.cjs',
             moduleResolution: ModuleResolution.commonjs
           });
           result.should.exist;
@@ -101,7 +103,7 @@ describe('module-factory', () => {
       });
       it('should load a via module function from relative es extended', () => {
         const result = loadFromModule<any>({
-          moduleName: '../testing/extended.js',
+          moduleName: '../../../testing-mjs/extended.js',
           functionName: 'create2',
           moduleResolution: ModuleResolution.es
         });
@@ -114,7 +116,7 @@ describe('module-factory', () => {
         });
       });
       it('should load a via module function from absolute es extended', () => {
-        const moduleName = pathToFileURL(join(__dirname, '../testing/extended.js')).toString();
+        const moduleName = pathToFileURL(join(__dirname, './extended.js')).toString();
         console.log(`MODULE_NAME = ${moduleName}`);
         const result = loadFromModule<any>({
           moduleName,
@@ -131,7 +133,7 @@ describe('module-factory', () => {
       });
       it('should load a via module constructor from es extended', () => {
         const result = loadFromModule<any>({
-          moduleName: '../testing/extended.js',
+          moduleName: '../../../testing-mjs/extended.js',
           constructorName: 'TestDataType',
           moduleResolution: ModuleResolution.es
         });
@@ -151,7 +153,7 @@ describe('module-factory', () => {
       });
       it('should load json with no schema check', () => {
         const testJsonObj: any = loadJSONResource({
-          moduleName: '../testing/test-json.json',
+          moduleName: '../../../testing-mjs/test-json.json',
           moduleResolution: ModuleResolution.json
         });
         (typeof testJsonObj).should.equal('object');
@@ -169,7 +171,7 @@ describe('module-factory', () => {
         };
         try {
           const testJsonObj: any = loadJSONResource({
-            moduleName: '../testing/test-json.json',
+            moduleName: '../../../testing-mjs/test-json.json',
             moduleResolution: ModuleResolution.json,
             loadSchema
           });
@@ -192,7 +194,7 @@ describe('module-factory', () => {
         };
         try {
           const testJsonObj: any = loadJSONResource({
-            moduleName: '../testing/test-json.json',
+            moduleName: '../../../testing-mjs/test-json.json',
             moduleResolution: ModuleResolution.json,
             loadSchema
           });
@@ -221,7 +223,7 @@ describe('module-factory', () => {
           useNewCheckerFunction: true
         };
         const testJsonObj: any = loadJSONResource({
-          moduleName: '../testing/test-json.json',
+          moduleName: '../../../testing-mjs/test-json.json',
           moduleResolution: ModuleResolution.json,
           loadSchema
         });
@@ -255,7 +257,7 @@ describe('module-factory', () => {
           useNewCheckerFunction: true
         };
         const testJsonObj: any = loadJSONResource({
-          moduleName: '../testing/test-json.json',
+          moduleName: '../../../testing-mjs/test-json.json',
           moduleResolution: ModuleResolution.json,
           loadSchema
         });
@@ -284,7 +286,7 @@ describe('module-factory', () => {
         };
         const loadSchema = (new Validator({useNewCustomCheckerFunction: true})).compile(schema);
         const testJsonObj: any = loadJSONResource({
-          moduleName: '../testing/test-json.json',
+          moduleName: '../../../testing-mjs/test-json.json',
           moduleResolution: ModuleResolution.json,
           loadSchema
         });
@@ -301,7 +303,7 @@ describe('module-factory', () => {
           useNewCheckerFunction: true
         };
         const module: ModuleDefinition = {
-          moduleName: '../testing/extended.js',
+          moduleName: '../../../testing-mjs/extended.js',
           functionName: 'create2',
           moduleResolution: ModuleResolution.es,
           loadSchema: schema
@@ -325,7 +327,7 @@ describe('module-factory', () => {
           useNewCheckerFunction: true
         };
         const result = loadFromModule<any>({
-          moduleName: '../testing/extended.js',
+          moduleName: '../../../testing-mjs/extended.js',
           functionName: 'create2',
           moduleResolution: ModuleResolution.es,
           loadSchema: schema
@@ -340,7 +342,7 @@ describe('module-factory', () => {
       });
       it('should load a via module function from es extended, deep nested function name', () => {
         const result = loadFromModule<any>({
-          moduleName: '../testing/extended.js',
+          moduleName: '../../../testing-mjs/extended.js',
           functionName: 'foo.bar',
           moduleResolution: ModuleResolution.es
         });
@@ -432,7 +434,7 @@ describe('module-factory', () => {
       });
       it('should load a via module function from es extended with successful TypeOf check', () => {
         const module: ModuleDefinition = {
-          moduleName: '../testing/extended.js',
+          moduleName: '../../../testing-mjs/extended.js',
           functionName: 'createString',
           moduleResolution: ModuleResolution.es,
           loadSchema: TypeOf.String
@@ -455,7 +457,7 @@ describe('module-factory', () => {
       it('should load a via module function from es extended with unsuccessful TypeOf check', () => {
 
         const result = loadFromModule<string>({
-          moduleName: '../testing/extended.js',
+          moduleName: '../../../testing-mjs/extended.js',
           functionName: 'createString',
           moduleResolution: ModuleResolution.es,
           loadSchema: TypeOf.Number
@@ -474,7 +476,7 @@ describe('module-factory', () => {
       });
       it('should load a via module function from es extended with successful TypeOf load schema', () => {
         const result = loadFromModule<string>({
-          moduleName: '../testing/extended.js',
+          moduleName: '../../../testing-mjs/extended.js',
           functionName: 'createString',
           moduleResolution: ModuleResolution.es,
           loadSchema: TypeOf.String
@@ -494,7 +496,7 @@ describe('module-factory', () => {
       it('should load a via module function from es extended with unsuccessful TypeOf check', () => {
 
         const result = loadFromModule<string>({
-          moduleName: '../testing/extended.js',
+          moduleName: '../../../testing-mjs/extended.js',
           functionName: 'createString',
           moduleResolution: ModuleResolution.es,
           loadSchema: TypeOf.Number
@@ -513,7 +515,7 @@ describe('module-factory', () => {
       });
       it('should load a via module function returning a promise from es extended number 49', () => {
         const module: ModuleDefinition = {
-          moduleName: '../testing/extended.js',
+          moduleName: '../../../testing-mjs/extended.js',
           functionName: 'createNumber',
           moduleResolution: ModuleResolution.es,
           loadSchema: TypeOf.Number
@@ -535,7 +537,7 @@ describe('module-factory', () => {
       it('should fail load a via module function from es extended with throwOnAsync = true', () => {
         try {
           const result = loadFromModule<string>({
-            moduleName: '../testing/extended.js',
+            moduleName: '../../../testing-mjs/extended.js',
             functionName: 'createString',
             moduleResolution: ModuleResolution.es,
             loadSchema: TypeOf.Number
@@ -548,7 +550,7 @@ describe('module-factory', () => {
       it('should load promise via module default from commonjs bad-extended, for function name createAsyncFunc', () => {
         try {
           const module: ModuleDefinition = {
-            moduleName: '../testing/bad-extended.cjs',
+            moduleName: '../../../testing-mjs/bad-extended.cjs',
             moduleResolution: ModuleResolution.commonjs,
             functionName: 'createAsyncFunc'
           };
@@ -570,7 +572,7 @@ describe('module-factory', () => {
       it('should not load promise via module default from commonjs bad-extended, for function name createAsyncFunc, with throwOnAsync true', () => {
         try {
           const result = loadFromModule<any>({
-            moduleName: '../testing/bad-extended.cjs',
+            moduleName: '../../../testing-mjs/bad-extended.cjs',
             moduleResolution: ModuleResolution.commonjs,
             functionName: 'createAsyncFunc'
           });
@@ -584,7 +586,7 @@ describe('module-factory', () => {
       it('Example 1: An example of loading from a .json file without validation, synchronously', () => {
         type TestObj = { key: string, value: string };
         const obj = loadJSONResource<TestObj>({
-          moduleName: '../testing/example-json.json',
+          moduleName: '../../../testing-mjs/example-json.json',
           moduleResolution: ModuleResolution.json
         }) as TestObj;
         console.log(inspect(obj, false, 5), 'Example 1 output');
@@ -602,13 +604,14 @@ describe('module-factory', () => {
 
         try {
           const obj = loadJSONResource<TestObj>({
-            moduleName: '../testing/example-json.json',
+            moduleName: '../../../testing-mjs/example-json.json',
             moduleResolution: ModuleResolution.json,
             loadSchema
           }) as TestObj;
+          unreachableCode.should.be.true;
         } catch (err) {
           // Error expected;
-          console.error(err);
+          unreachableCode.should.be.false;
         }
       });
     });

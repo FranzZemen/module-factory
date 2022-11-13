@@ -3,7 +3,7 @@
 module-factory is a factory pattern that supports injecting factory objects dynamically from other modules. It finds use
 in projects that leverage plugins but don't want to statically install all or any plugins, for example.
 
-Currently, only available as an ES6 module but can inject commonjs modules
+Currently, this module is only available as an ECMAScript module but it can inject commonjs modules
 
 # Install
 

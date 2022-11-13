@@ -4,6 +4,9 @@
 node_modules
 *.zip
 release
-build
+build*
+layer-release
 publish
 testing
+testing-mjs
+testing-cjs

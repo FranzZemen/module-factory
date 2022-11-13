@@ -1,16 +1,9 @@
 {
+  "extends": "./tsconfig-base.json",
   "compilerOptions": {
-    "module": "es2022",
-    "moduleResolution": "Node",
-    "target": "ES2021",
-    "sourceMap": true,
-    "rootDir": "ts-src",
-    "outDir": "build",
-    "removeComments": true,
-    "declaration": true,
-    "esModuleInterop": true
+    "module": "esnext",
+    "target": "ES2021"
   },
-  "include": ["ts-src/**/*.ts","ts-src/**/*.cts", "ts-src/**/*.mts"],
   "exclude": [
     "node_modules"
   ]
