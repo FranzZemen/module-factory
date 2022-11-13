@@ -7,7 +7,7 @@ import {fileURLToPath} from 'url';
 
 const requireModule = createRequire(import.meta.url);
 gulpBase.init(requireModule('./package.json'), cwd());
-gulpBase.setGenerateCommonJS(false)
+// gulpBase.setGenerateCommonJS(false)
 
 
 export const npmu  = (cb) => {

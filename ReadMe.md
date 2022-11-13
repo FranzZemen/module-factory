@@ -23,11 +23,9 @@ npm i @franzzemen/module-factory
 ````
 
 ```` typescript 
-function loadJSONResource<T>(moduleDef: ModuleDefinition, log: ModuleFactoryLogger = console): T | Promise<T>  {//...}
+function loadJSONResource<T>(moduleDef: ModuleDefinition, log: ModuleFactoryLogger = console): Promise<T>  {//...}
 
-let obj = loadJsonResource({
-  moduleName: 'somePath/someFile.json', moduleResolution: 'json'
-});
+let obj = await loadJsonResource({moduleName: 'somePath/someFile.json'});
 ````
 
 Here somePath is relative to the location of module-factory. This is usually in the root node-modules, in the directory
@@ -58,9 +56,8 @@ Of course this is only syntactical sugar (if even that) over
 But you can also add a validation apart from ensuring it is true json:
 
 ```` typescript
-let obj = loadJsonResource({
+let obj = await loadJsonResource({
   moduleName: 'somePath/someFile.json',
-  moduleResolution: ModuleResolution.json,
   loadSchema: {
     validationSchema: {
       price: {type: 'number'},
@@ -85,7 +82,7 @@ const validationSchema: ValidationSchema = {
    
 const check = new Validator().compile(validationSchema);
    
-let obj = loadJsonResource({moduleName: 'somePath/someFile.json', moduleResolution: 'json', loadSchema: check});
+let obj = await loadJsonResource({moduleName: 'somePath/someFile.json'});
 ````
 
 # Inject JSON from a factory module
@@ -97,24 +94,22 @@ in the module definition, JSON is guaranteed or an error is thrown.
 see further down ***
 
 ```` typescript
-function loadJSONFromModule<T>(moduleDef: ModuleDefinition, log?: ModuleFactoryLogger): T | Promise<T> {}
+function loadJSONFromModule<T>(moduleDef: ModuleDefinition, log?: ModuleFactoryLogger): Promise<T> {}
 
-let obj = loadJSONFromModule({
+let obj = await loadJSONFromModule({
   moduleName: '@franzzemen/test-commonjs',
-  propertyName: 'jsonStr',
-  moduleResolution: 'commonjs'
+  propertyName: 'jsonStr'
 });
 ````
 
 Or from a nested property in a relative module (the nesting syntax leverages object-path).
 
 ```` typescript
-function loadJSONFromModule<T>(moduleDef: ModuleDefinition, log?: ModuleFactoryLogger): T | Promise<T> {}
+function loadJSONFromModule<T>(moduleDef: ModuleDefinition, log?: ModuleFactoryLogger): Promise<T> {}
 
-let obj = loadJSONFromModule({
+let obj = await loadJSONFromModule({
   moduleName: 'somePath/test-commonjs',
-  propertyName: 'nestedJsonStr.jsonStr',
-  moduleResolution: 'commonjs'
+  propertyName: 'nestedJsonStr.jsonStr'
 });
 ````
 
@@ -125,22 +120,18 @@ Noting that somePath has the same treatment as above.
 Inject a value using a factory function from an installed or relative module:
 
 ```` typescript
-// In 'someModule', an es module
+// In 'someModule', an es or common js module export the following
 function getSomeStringFactory(): string {
    return 'Thread + uuid()';
 }
 ````
 
-Using ES6 module loader
-
 ```` typescript
-function loadFromModule<T>(moduleDef: ModuleDefinition, log?: ModuleFactoryLogger): T | Promise<T> {}
+function loadFromModule<T>(moduleDef: ModuleDefinition, log?: ModuleFactoryLogger): Promise<T> {}
 
-// Returns a promise because we're dynamically loading an ES6 module.  That would not be the case for json module resolution
-loadFromModule({
+const threadId: string = await loadFromModule<string>({
    moduleName: 'someModule',
-   functionName: 'getSomeStringFactory',
-   moduleResolution: ModuleResolution.es,
+   functionName: 'getSomeStringFactory'
    loadSchema: TypeOf.String
 }).then((value:string) => {
    console.log(`The value is ${value}`);
@@ -150,18 +141,7 @@ loadFromModule({
 });
 ````
 
-Using commonjs module loader
-
-```` typescript
-const str = loadFromModule({
-  moduleName: 'someModule',
-  functionName: 'getSomeStringFactory',
-  moduleResolution: ModuleResolution.commonjs,
-  loadSchema: TypeOf.String
-})
-````
-
-Or using commonjs module loader with async factory function
+Or with async factory function, not any different
 
 ```` typescript
 // In 'someModule', a commonjs module
@@ -171,13 +151,12 @@ function getSomeStringFactory(): Promise<string> {
 ````
 
 ```` typescript
-function loadFromModule<T>(moduleDef: ModuleDefinition, log?: ModuleFactoryLogger): T | Promise<T> {}
+function loadFromModule<T>(moduleDef: ModuleDefinition, log?: ModuleFactoryLogger): Promise<T> {}
 
 // Returns a promise because the factory function does.  
-loadFromModule({
+const threadId = await loadFromModule<string>({
    moduleName: 'someModule',
-   functionName: 'getSomeStringFactory',
-   moduleResolution: ModuleResolution.json,
+   functionName: 'getSomeStringFactory'
    loadSchema: TypeOf.String
 }).then((value:string) => {
    console.log(`The value is ${value}`);
@@ -190,10 +169,9 @@ loadFromModule({
 Inject an object using a factory function
 
 ```` javascript
-const obj = loadFromModule({
+const obj = await loadFromModule({
    moduleName: 'someModule',
-   functionName: 'getSomeObject',
-   moduleResolution: ModuleResolution.commonjs
+   functionName: 'getSomeObject'
 })
 ````
 
@@ -203,10 +181,9 @@ For example, inject a function
 import {StockQuote} from 'somewhere';
 type SomeFunction = (ticker: string, timeStamp: string) => StockQuote;
 
-const someFunction: SomeFunction = loadFromModule<SomeFunction>({
+const someFunction: SomeFunction = await loadFromModule<SomeFunction>({
    moduleName: 'someModule',
-   functionName: 'getSomeFunction',
-   moduleResolution: 'commonjs'
+   functionName: 'getSomeFunction'
 });
 
 const stockQuote: StockQuote = someFunction('ZEM', '10-24-1967T15:53:00');
@@ -216,10 +193,9 @@ Inject an object using a factory constructor (constructors never return promises
 Promise)
 
 ```` typescript
-const obj: StockQuote = loadFromModule<StockQuote>({
+const obj: StockQuote = await loadFromModule<StockQuote>({
    moduleName: 'someModule',
-   constructorName: 'StockQuote',
-   moduleResolution: ModuleResolution.commonjs
+   constructorName: 'StockQuote'
 })
 ````
 
@@ -232,7 +208,6 @@ The Module Definition specification is:
         functionName?: string,
         constructorName?: string,
         propertyName?: string,
-        moduleResolution?: ModuleResolution,
         paramsArray?: any[],
         loadSchema?: LoadSchema | TypeOf | AsyncCheckFunction | SyncCheckFunction,
     };
@@ -242,7 +217,6 @@ The Module Definition specification is:
         functionName:       The name of the factory function in the loaded module.  Not used for JSON files.  
         constructorName:    The name of the factory constructor in the loaded module.  Not used for JSON files or modules providing JSON properties.
         propertyName:       The name of a JSON property in the loaded module
-        moduleResolution:   The module type of the loaded module. Either 'commonjs' or 'es' or a value from the enum ModuleResolution.
         paramsArray:        Additional parameters to be provided to the factory function/constructor
         loadSchema:         A validation method for the loaded object
 

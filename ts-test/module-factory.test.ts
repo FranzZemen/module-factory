@@ -1,10 +1,3 @@
-import chai from 'chai';
-import Validator, {ValidationError, ValidationSchema} from 'fastest-validator';
-import 'mocha';
-import {dirname, join} from 'path';
-import {fileURLToPath, pathToFileURL} from 'url';
-import {inspect} from 'util';
-import {isPromise} from 'util/types';
 import {
   isConstrainedModuleDefinition,
   isModuleDefinition,
@@ -13,13 +6,17 @@ import {
   loadJSONResource,
   LoadSchema,
   ModuleDefinition,
-  ModuleResolution,
   TypeOf
-  // @ts-ignore As our build system doesn't set target in base tsconfig.json
+  // @ts-ignore
 } from '@franzzemen/module-factory';
-
-// @ts-ignore As our build system doesn't set target in base tsconfig.json
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import chai from 'chai';
+import Validator, {ValidationError, ValidationSchema} from 'fastest-validator';
+import 'mocha';
+import {join} from 'path';
+import {pathToFileURL} from 'url';
+import {inspect} from 'util';
+import {isPromise} from 'util/types';
+import {_dirname} from './meta-help.cjs';
 
 let should = chai.should();
 let expect = chai.expect;
@@ -32,7 +29,6 @@ describe('module-factory', () => {
       it('should validate a module definition', () => {
         const moduleDefinition: ModuleDefinition = {
           moduleName: 'Hello',
-          moduleResolution: ModuleResolution.json,
           loadSchema: TypeOf.Number,
           constructorName: 'Hello',
           functionName: 'Hello',
@@ -41,7 +37,7 @@ describe('module-factory', () => {
           paramsArray: [
             'hell', 5.0, {}
           ]
-        }
+        };
       });
       it('should validate module, not constrained module', () => {
         const obj = {moduleName: 'SomeModule'};
@@ -79,11 +75,10 @@ describe('module-factory', () => {
         isConstrainedModuleDefinition(obj).should.be.true;
 
       });
-      it('should fail to load via module default from commonjs bad-extended with no function or constructor name', () => {
+      it('should fail to load via module default from commonjs bad-extended with no function or constructor name', async () => {
         try {
-          const result = loadFromModule<any>({
-            moduleName: '../../../testing-mjs/bad-extended.cjs',
-            moduleResolution: ModuleResolution.commonjs
+          const result = await loadFromModule<any>({
+            moduleName: pathToFileURL(join(_dirname, './bad-extended.cjs')).toString()
           });
           unreachableCode.should.be.true;
         } catch (err) {
@@ -93,8 +88,7 @@ describe('module-factory', () => {
       it('should load via module default from commonjs bad-extended with no function or constructor name, using default for function name', () => {
         try {
           const result = loadFromModule<any>({
-            moduleName: '../../../testing-mjs/bad-extended.cjs',
-            moduleResolution: ModuleResolution.commonjs
+            moduleName: pathToFileURL(join(_dirname, './bad-extended.cjs')).toString()
           });
           result.should.exist;
         } catch (err) {
@@ -103,39 +97,39 @@ describe('module-factory', () => {
       });
       it('should load a via module function from relative es extended', () => {
         const result = loadFromModule<any>({
-          moduleName: '../../../testing-mjs/extended.js',
-          functionName: 'create2',
-          moduleResolution: ModuleResolution.es
+          moduleName: pathToFileURL(join(_dirname, './extended.cjs')).toString(),
+          functionName: 'create2'
         });
         expect(result).to.exist;
         isPromise(result).should.be.true;
         return result.then(res => {
           res.name.should.equal('Test');
+          return;
         }, err => {
           unreachableCode.should.be.true;
+          return;
         });
       });
       it('should load a via module function from absolute es extended', () => {
-        const moduleName = pathToFileURL(join(__dirname, './extended.js')).toString();
-        console.log(`MODULE_NAME = ${moduleName}`);
+        const moduleName = pathToFileURL(join(_dirname, './extended.cjs')).toString();
         const result = loadFromModule<any>({
           moduleName,
-          functionName: 'create2',
-          moduleResolution: ModuleResolution.es
+          functionName: 'create2'
         });
         expect(result).to.exist;
         isPromise(result).should.be.true;
         return result.then(res => {
           res.name.should.equal('Test');
+          return;
         }, err => {
           unreachableCode.should.be.true;
+          return;
         });
       });
       it('should load a via module constructor from es extended', () => {
         const result = loadFromModule<any>({
-          moduleName: '../../../testing-mjs/extended.js',
-          constructorName: 'TestDataType',
-          moduleResolution: ModuleResolution.es
+          moduleName: pathToFileURL(join(_dirname, './extended.cjs')).toString(),
+          constructorName: 'TestDataType'
         });
         expect(result).to.exist;
         isPromise(result).should.be.true;
@@ -147,21 +141,22 @@ describe('module-factory', () => {
           return err;
         })
           .catch(err => {
+            console.error(err);
             unreachableCode.should.be.true;
+            return;
           });
 
       });
-      it('should load json with no schema check', () => {
-        const testJsonObj: any = loadJSONResource({
-          moduleName: '../../../testing-mjs/test-json.json',
-          moduleResolution: ModuleResolution.json
+      it('should load json with no schema check', async () => {
+        const moduleName = join(_dirname, './test-json.json');
+        const testJsonObj: any = await loadJSONResource({
+          moduleName
         });
         (typeof testJsonObj).should.equal('object');
         testJsonObj.name.should.exist;
         testJsonObj.id.should.exist;
-
       });
-      it('should load json with passing schema check', () => {
+      it('should load json with passing schema check', async () => {
         const loadSchema: LoadSchema = {
           validationSchema: {
             name: {type: 'string'},
@@ -170,20 +165,18 @@ describe('module-factory', () => {
           useNewCheckerFunction: false
         };
         try {
-          const testJsonObj: any = loadJSONResource({
-            moduleName: '../../../testing-mjs/test-json.json',
-            moduleResolution: ModuleResolution.json,
+          const testJsonObj: any = await loadJSONResource({
+            moduleName: join(_dirname, '/test-json.json'),
             loadSchema
           });
           (typeof testJsonObj).should.equal('object');
           testJsonObj.name.should.exist;
           testJsonObj.id.should.exist;
         } catch (err) {
-          console.error(err);
           unreachableCode.should.be.true;
         }
       });
-      it('should load json with failing schema check', () => {
+      it('should load json with failing schema check', async () => {
         const loadSchema: LoadSchema = {
           validationSchema: {
             name: {type: 'string'},
@@ -193,14 +186,12 @@ describe('module-factory', () => {
           useNewCheckerFunction: false
         };
         try {
-          const testJsonObj: any = loadJSONResource({
-            moduleName: '../../../testing-mjs/test-json.json',
-            moduleResolution: ModuleResolution.json,
+          const testJsonObj: any = await loadJSONResource({
+            moduleName: join(_dirname, '/test-json.json'),
             loadSchema
           });
           unreachableCode.should.be.true;
         } catch (err) {
-          console.error(err);
           err.should.exist;
         }
       });
@@ -223,13 +214,13 @@ describe('module-factory', () => {
           useNewCheckerFunction: true
         };
         const testJsonObj: any = loadJSONResource({
-          moduleName: '../../../testing-mjs/test-json.json',
-          moduleResolution: ModuleResolution.json,
+          moduleName: join(_dirname, './test-json.json'),
           loadSchema
         });
         isPromise(testJsonObj).should.be.true;
         return testJsonObj.then(obj => {
           obj.label.should.equal('A');
+          return;
         });
       });
       it('should load json with async schema fail', () => {
@@ -257,16 +248,16 @@ describe('module-factory', () => {
           useNewCheckerFunction: true
         };
         const testJsonObj: any = loadJSONResource({
-          moduleName: '../../../testing-mjs/test-json.json',
-          moduleResolution: ModuleResolution.json,
+          moduleName: join(_dirname, './test-json.json'),
           loadSchema
         });
         isPromise(testJsonObj).should.be.true;
         return testJsonObj.then(obj => {
           unreachableCode.should.be.true;
+          return;
         }, err => {
-          console.error(err);
           err.should.exist;
+          return;
         });
       });
       it('should load json with compiled async check', () => {
@@ -286,13 +277,13 @@ describe('module-factory', () => {
         };
         const loadSchema = (new Validator({useNewCustomCheckerFunction: true})).compile(schema);
         const testJsonObj: any = loadJSONResource({
-          moduleName: '../../../testing-mjs/test-json.json',
-          moduleResolution: ModuleResolution.json,
+          moduleName: join(_dirname, './test-json.json'),
           loadSchema
         });
         isPromise(testJsonObj).should.be.true;
         return testJsonObj.then(obj => {
           obj.label.should.equal('A');
+          return;
         });
       });
       it('should load a via module function from es extended with successful schema check on moduleDef', () => {
@@ -303,19 +294,20 @@ describe('module-factory', () => {
           useNewCheckerFunction: true
         };
         const module: ModuleDefinition = {
-          moduleName: '../../../testing-mjs/extended.js',
+          moduleName: pathToFileURL(join(_dirname, './extended.cjs')).toString(),
           functionName: 'create2',
-          moduleResolution: ModuleResolution.es,
           loadSchema: schema
         };
         const result = loadFromModule<any>(module);
         expect(result).to.exist;
-        module.asyncFactory.should.be.false;
         isPromise(result).should.be.true;
         return result.then(res => {
           res.name.should.equal('Test');
+          return;
         }, err => {
+          console.log(err);
           unreachableCode.should.be.true;
+          return;
         });
       });
       it('should load a via module function from es extended with unsuccessful schema check on moduleDef', () => {
@@ -327,47 +319,51 @@ describe('module-factory', () => {
           useNewCheckerFunction: true
         };
         const result = loadFromModule<any>({
-          moduleName: '../../../testing-mjs/extended.js',
+          moduleName: pathToFileURL(join(_dirname, './extended.cjs')).toString(),
           functionName: 'create2',
-          moduleResolution: ModuleResolution.es,
           loadSchema: schema
         });
         expect(result).to.exist;
         isPromise(result).should.be.true;
         return result.then(res => {
           unreachableCode.should.be.true;
+          return;
         }, err => {
           err.should.exist;
+          return;
         });
       });
       it('should load a via module function from es extended, deep nested function name', () => {
         const result = loadFromModule<any>({
-          moduleName: '../../../testing-mjs/extended.js',
-          functionName: 'foo.bar',
-          moduleResolution: ModuleResolution.es
+          moduleName: pathToFileURL(join(_dirname, './extended.cjs')).toString(),
+          functionName: 'foo.bar'
         });
         expect(result).to.exist;
         isPromise(result).should.be.true;
         return result.then(res => {
           res.id.should.equal(15);
+          return;
         }, err => {
           unreachableCode.should.be.true;
+          return;
         });
       });
       it('should load jason from module property', () => {
         const moduleDef: ModuleDefinition = {
           moduleName: '@franzzemen/test',
-          propertyName: 'jsonStr',
-          moduleResolution: ModuleResolution.es
+          propertyName: 'jsonStr'
         };
         const objPromise = loadJSONFromModule(moduleDef);
         objPromise.should.exist;
         if (isPromise(objPromise)) {
-          objPromise
+          return objPromise
             .then(obj => {
               obj['prop'].should.equal('jsonStr');
-            }, err => {
+              return;
+            }).catch(err => {
+              console.error(err);
               unreachableCode.should.be.true;
+              return;
             });
         } else {
           unreachableCode.should.be.true;
@@ -376,17 +372,19 @@ describe('module-factory', () => {
       it('should load jason from deep nested module property', () => {
         const moduleDef: ModuleDefinition = {
           moduleName: '@franzzemen/test',
-          propertyName: 'nestedJsonStr.jsonStr',
-          moduleResolution: ModuleResolution.es
+          propertyName: 'nestedJsonStr.jsonStr'
         };
         const objPromise = loadJSONFromModule(moduleDef);
         objPromise.should.exist;
         if (isPromise(objPromise)) {
-          objPromise
+          return objPromise
             .then(obj => {
               obj['prop'].should.equal('jsonStr');
-            }, err => {
+              return;
+            }).catch( err => {
+              console.error(err);
               unreachableCode.should.be.true;
+              return;
             });
         } else {
           objPromise['prop'].should.equal('jsonStr');
@@ -395,17 +393,19 @@ describe('module-factory', () => {
       it('should load object from package', () => {
         const moduleDef: ModuleDefinition = {
           moduleName: '@franzzemen/test',
-          functionName: 'getObj',
-          moduleResolution: ModuleResolution.es
+          functionName: 'getObj'
         };
         const objPromise = loadFromModule(moduleDef);
         objPromise.should.exist;
         if (isPromise(objPromise)) {
-          objPromise
+          return objPromise
             .then(obj => {
               obj['name'].should.equal('test');
-            }, err => {
+              return;
+            }).catch(err => {
+              console.error(err);
               unreachableCode.should.be.true;
+              return;
             });
         } else {
           unreachableCode.should.be.true;
@@ -415,18 +415,20 @@ describe('module-factory', () => {
         const moduleDef: ModuleDefinition = {
           moduleName: '@franzzemen/test',
           functionName: 'getObjWithParameters',
-          moduleResolution: ModuleResolution.es,
           paramsArray: ['year', 1999]
         };
         const objPromise = loadFromModule(moduleDef);
         objPromise.should.exist;
         if (isPromise(objPromise)) {
-          objPromise
+          return objPromise
             .then(obj => {
               obj['label'].should.equal('year');
               obj['id'].should.equal(1999);
-            }, err => {
+              return;
+            }).catch(err => {
+              console.error(err);
               unreachableCode.should.be.true;
+              return;
             });
         } else {
           unreachableCode.should.be.true;
@@ -434,32 +436,29 @@ describe('module-factory', () => {
       });
       it('should load a via module function from es extended with successful TypeOf check', () => {
         const module: ModuleDefinition = {
-          moduleName: '../../../testing-mjs/extended.js',
+          moduleName: pathToFileURL(join(_dirname, './extended.cjs')).toString(),
           functionName: 'createString',
-          moduleResolution: ModuleResolution.es,
           loadSchema: TypeOf.String
         };
         const result = loadFromModule<string>(module);
-        module.asyncFactory.should.be.false;
         expect(result).to.exist;
         isPromise(result).should.be.true;
         if (isPromise(result)) {
           return result.then(res => {
             expect(res).to.equal('hello world');
-            module.asyncFactory.should.be.false;
             return;
           }, err => {
             console.error(err);
             unreachableCode.should.be.true;
+            return;
           });
         }
       });
       it('should load a via module function from es extended with unsuccessful TypeOf check', () => {
 
         const result = loadFromModule<string>({
-          moduleName: '../../../testing-mjs/extended.js',
+          moduleName: pathToFileURL(join(_dirname, './extended.cjs')).toString(),
           functionName: 'createString',
-          moduleResolution: ModuleResolution.es,
           loadSchema: TypeOf.Number
         });
         expect(result).to.exist;
@@ -471,14 +470,14 @@ describe('module-factory', () => {
           }, err => {
             err.should.exist;
             err.message.startsWith('TypeOf').should.be.true;
+            return;
           });
         }
       });
       it('should load a via module function from es extended with successful TypeOf load schema', () => {
         const result = loadFromModule<string>({
-          moduleName: '../../../testing-mjs/extended.js',
+          moduleName: pathToFileURL(join(_dirname, './extended.cjs')).toString(),
           functionName: 'createString',
-          moduleResolution: ModuleResolution.es,
           loadSchema: TypeOf.String
         });
         expect(result).to.exist;
@@ -490,15 +489,15 @@ describe('module-factory', () => {
           }, err => {
             console.error(err);
             unreachableCode.should.be.true;
+            return;
           });
         }
       });
       it('should load a via module function from es extended with unsuccessful TypeOf check', () => {
 
         const result = loadFromModule<string>({
-          moduleName: '../../../testing-mjs/extended.js',
+          moduleName: pathToFileURL(join(_dirname, './extended.cjs')).toString(),
           functionName: 'createString',
-          moduleResolution: ModuleResolution.es,
           loadSchema: TypeOf.Number
         });
         expect(result).to.exist;
@@ -510,36 +509,34 @@ describe('module-factory', () => {
           }, err => {
             err.should.exist;
             err.message.startsWith('TypeOf').should.be.true;
+            return;
           });
         }
       });
       it('should load a via module function returning a promise from es extended number 49', () => {
         const module: ModuleDefinition = {
-          moduleName: '../../../testing-mjs/extended.js',
+          moduleName: pathToFileURL(join(_dirname, './extended.cjs')).toString(),
           functionName: 'createNumber',
-          moduleResolution: ModuleResolution.es,
           loadSchema: TypeOf.Number
         };
         const result = loadFromModule<string>(module);
-        module.asyncFactory.should.be.false;
         expect(result).to.exist;
         isPromise(result).should.be.true;
         if (isPromise(result)) {
           return result.then(res => {
             res.should.equal(49);
-            module.asyncFactory.should.be.true;
             return;
           }, err => {
             unreachableCode.should.be.true;
+            return;
           });
         }
       });
       it('should fail load a via module function from es extended with throwOnAsync = true', () => {
         try {
           const result = loadFromModule<string>({
-            moduleName: '../../../testing-mjs/extended.js',
+            moduleName: pathToFileURL(join(_dirname, './extended.cjs')).toString(),
             functionName: 'createString',
-            moduleResolution: ModuleResolution.es,
             loadSchema: TypeOf.Number
           });
           unreachableCode.should.be.true;
@@ -550,17 +547,15 @@ describe('module-factory', () => {
       it('should load promise via module default from commonjs bad-extended, for function name createAsyncFunc', () => {
         try {
           const module: ModuleDefinition = {
-            moduleName: '../../../testing-mjs/bad-extended.cjs',
-            moduleResolution: ModuleResolution.commonjs,
+            moduleName: pathToFileURL(join(_dirname, './bad-extended.cjs')).toString(),
             functionName: 'createAsyncFunc'
           };
           const result = loadFromModule<any>(module);
-          module.asyncFactory.should.be.true;
           if (isPromise(result)) {
             return result
               .then(someResult => {
                 someResult.should.equal(50);
-                module.asyncFactory.should.be.true;
+                return;
               });
           } else {
             unreachableCode.should.be.true;
@@ -572,8 +567,7 @@ describe('module-factory', () => {
       it('should not load promise via module default from commonjs bad-extended, for function name createAsyncFunc, with throwOnAsync true', () => {
         try {
           const result = loadFromModule<any>({
-            moduleName: '../../../testing-mjs/bad-extended.cjs',
-            moduleResolution: ModuleResolution.commonjs,
+            moduleName: pathToFileURL(join(_dirname, './extended.cjs')).toString(),
             functionName: 'createAsyncFunc'
           });
           unreachableCode.should.be.true;
@@ -586,10 +580,8 @@ describe('module-factory', () => {
       it('Example 1: An example of loading from a .json file without validation, synchronously', () => {
         type TestObj = { key: string, value: string };
         const obj = loadJSONResource<TestObj>({
-          moduleName: '../../../testing-mjs/example-json.json',
-          moduleResolution: ModuleResolution.json
+          moduleName: join(_dirname,'./example-json.json')
         }) as TestObj;
-        console.log(inspect(obj, false, 5), 'Example 1 output');
       });
       it('Example 1a: Example 1 with a LoadSchema', () => {
         type TestObj = { key: string, value: string };
@@ -604,8 +596,7 @@ describe('module-factory', () => {
 
         try {
           const obj = loadJSONResource<TestObj>({
-            moduleName: '../../../testing-mjs/example-json.json',
-            moduleResolution: ModuleResolution.json,
+            moduleName: join(_dirname, '/example-json.json'),
             loadSchema
           }) as TestObj;
           unreachableCode.should.be.true;
