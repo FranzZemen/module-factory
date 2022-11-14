@@ -143,7 +143,8 @@ export const moduleDefinitionSchema: ValidationSchema = {
     optional: true,
     instanceOf: TypeOf
   }, {
-    type: 'function'
+    type: 'function',
+    optional: true
   }]
 };
 
