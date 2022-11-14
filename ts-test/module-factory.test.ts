@@ -14,7 +14,6 @@ import Validator, {ValidationError, ValidationSchema} from 'fastest-validator';
 import 'mocha';
 import {join} from 'path';
 import {pathToFileURL} from 'url';
-import {inspect} from 'util';
 import {isPromise} from 'util/types';
 import {_dirname} from './meta-help.cjs';
 
@@ -381,7 +380,7 @@ describe('module-factory', () => {
             .then(obj => {
               obj['prop'].should.equal('jsonStr');
               return;
-            }).catch( err => {
+            }).catch(err => {
               console.error(err);
               unreachableCode.should.be.true;
               return;
@@ -580,7 +579,7 @@ describe('module-factory', () => {
       it('Example 1: An example of loading from a .json file without validation, synchronously', () => {
         type TestObj = { key: string, value: string };
         const obj = loadJSONResource<TestObj>({
-          moduleName: join(_dirname,'./example-json.json')
+          moduleName: join(_dirname, './example-json.json')
         }) as TestObj;
       });
       it('Example 1a: Example 1 with a LoadSchema', () => {
