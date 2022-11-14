@@ -147,6 +147,12 @@ export const moduleDefinitionSchema: ValidationSchema = {
   }]
 };
 
+export const moduleDefinitionSchemaWrapper: ValidationSchema = {
+  type: 'object',
+  optional: true,
+  props: moduleDefinitionSchema
+}
+
 
 const check = new Validator({useNewCustomCheckerFunction: true}).compile(moduleDefinitionSchema);
 
