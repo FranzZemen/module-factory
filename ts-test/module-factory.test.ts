@@ -12,10 +12,10 @@ import {
 import chai from 'chai';
 import Validator, {ValidationError, ValidationSchema} from 'fastest-validator';
 import 'mocha';
-import {join} from 'path';
+import path, {join} from 'path';
 import {pathToFileURL} from 'url';
 import {isPromise} from 'util/types';
-import {_dirname} from './meta-help.cjs';
+import {_dirname} from './__dirname-this-directory.cjs';
 
 let should = chai.should();
 let expect = chai.expect;
@@ -603,6 +603,52 @@ describe('module-factory', () => {
           // Error expected;
           unreachableCode.should.be.false;
         }
+      });
+    });
+  });
+  describe('loadJSONResource & various path options for relative paths', () => {
+    it('should validate a relative path (relative to process.cwd)', async () => {
+      try {
+        const moduleName = './testing-mjs/test-json.json';
+        const testJsonObj = await loadJSONResource({moduleName});
+      } catch (err) {
+        console.log(err);
+        unreachableCode.should.be.true;
+      }
+    });
+    it('should validate an absolute path', async () => {
+      try {
+        const moduleName = '/dev/module-factory/testing-mjs/test-json.json';
+        const testJsonObj = await loadJSONResource({moduleName});
+      } catch (err) {
+        console.log(err);
+        unreachableCode.should.be.true;
+      }
+    });
+    it('should validate an absolute path built from path.resolve', async () => {
+      try {
+        const moduleName = path.resolve(_dirname, '../testing-mjs/test-json.json');
+        const testJsonObj = await loadJSONResource({moduleName});
+      } catch (err) {
+        console.log(err);
+        unreachableCode.should.be.true;
+      }
+    });
+  });
+  describe('Module Relative path', () => {
+    it('should load object from relative path to cw2', async () => {
+      const result = loadFromModule<any>({
+        moduleName: './testing-mjs/extended.cjs',
+        functionName: 'create2'
+      });
+      expect(result).to.exist;
+      return result.then(res => {
+        res.name.should.equal('Test');
+        return;
+      }, err => {
+        console.error(err);
+        unreachableCode.should.be.true;
+        return;
       });
     });
   });

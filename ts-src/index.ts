@@ -1,7 +1,11 @@
+export {importModule} from './import-helper.cjs';
+
 import Validator, {AsyncCheckFunction, SyncCheckFunction, ValidationError, ValidationSchema} from 'fastest-validator';
-import objectPath from 'object-path';
-import {isPromise} from 'util/types';
 import {readFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import objectPath from 'object-path';
+import {pathToFileURL} from 'url';
+import {isPromise} from 'util/types';
 import {importModule} from './import-helper.cjs';
 
 export interface ModuleFactoryLogger {
@@ -152,7 +156,7 @@ export const moduleDefinitionSchemaWrapper: ValidationSchema = {
   type: 'object',
   optional: true,
   props: moduleDefinitionSchema
-}
+};
 
 
 const check = new Validator({useNewCustomCheckerFunction: true}).compile(moduleDefinitionSchema);
@@ -240,6 +244,22 @@ function validateRunTimeSchema<T>(moduleName: string, moduleDef: ModuleDefinitio
   }
 }
 
+/**
+ * Load a json resource, analogous to require(), but some key differences because it leverages fs.readFile.
+ *
+ * @param moduleDef  The module definition.  Only the moduleName is used.
+ *
+ * The moduleName provides the path to the json file, and can be any string that
+ * is accepted by readFile, including a file url as string, a relative path or an absolution path starting with /.  A
+ * drive letter is not valid, if providing a path that starts with a drive letter you should convert it to a file URL.
+ *
+ * IMPORTANT:  Relative paths are resolved relative to the node process, i.e. where node was started and equivalent to
+ * being relative to process.cwd. Therefore, moduleName should be  an absolute path starting with /, a relative  path
+ * from where the node process launched, or an absolute path or file URL string created from some other way for example
+ * using path.resolve()
+ *
+ * @param log
+ */
 export function loadJSONResource<T>(moduleDef: ModuleDefinition, log: ModuleFactoryLogger = console): Promise<T> {
   try {
     return readFile(moduleDef.moduleName, {encoding: 'utf-8'})
@@ -247,7 +267,8 @@ export function loadJSONResource<T>(moduleDef: ModuleDefinition, log: ModuleFact
         try {
           return validateRunTimeSchema<T>(moduleDef.moduleName, moduleDef, JSON.parse(jsonContents), log);
         } catch (err) {
-          log.error(err);loadJSONFromModule
+          log.error(err);
+          loadJSONFromModule;
           return Promise.reject(err);
         }
       })
@@ -255,11 +276,21 @@ export function loadJSONResource<T>(moduleDef: ModuleDefinition, log: ModuleFact
         log.error(err);
         return Promise.reject(err);
       });
-  } catch(err) {
+  } catch (err) {
     log.error(err);
     return Promise.reject(err);
   }
 }
+
+function relativePath(path: string): boolean {
+  const relativeRegex = /^\.\/|\.\.\/[^]*$/;
+  return relativeRegex.test(path);
+}
+
+function moduleAbsolutePath(path: string): string {
+  return resolve(process.cwd(), path);
+}
+
 
 function loadJSONPropertyFromModule<T>(module: any, moduleDef: ModuleDefinition, log: ModuleFactoryLogger = console): Promise<T> {
   if (moduleDef.functionName) {
@@ -350,7 +381,11 @@ export function loadJSONFromModule<T>(moduleDef: ModuleDefinition, log: ModuleFa
         log.error(err);
         return Promise.reject(err);
       } else {
-        return importModule(moduleDef.moduleName)
+        let moduleName = moduleDef.moduleName;
+        if (relativePath(moduleName)) {
+          moduleName = pathToFileURL(moduleAbsolutePath(moduleName)).toString();
+        }
+        return importModule(moduleName)
           .then(module => {
             return loadJSONPropertyFromModule<T>(module, moduleDef, log);
           });
@@ -371,7 +406,11 @@ export function loadFromModule<T>(moduleDef: ModuleDefinition, log: ModuleFactor
   // Set to false, actual loading process will determine
   // TODO: Remove
   try {
-    return importModule(moduleDef.moduleName)
+    let moduleName = moduleDef.moduleName;
+    if (relativePath(moduleName)) {
+      moduleName = pathToFileURL(moduleAbsolutePath(moduleName)).toString();
+    }
+    return importModule(moduleName)
       .then(module => {
         let t: T;
         let factoryFunctionName = moduleDef.functionName;

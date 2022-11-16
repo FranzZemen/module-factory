@@ -49,10 +49,15 @@ function loadJSONResource<T>(moduleDef: ModuleDefinition, log: ModuleFactoryLogg
 
 let obj = await loadJsonResource({moduleName: 'somePath/someFile.json'});
 ````
+If some path is not absolute (i.e. starting with a '/') then it should be relative to the directory where the node 
+process was launched, a directory that is equivalent to process.cwd().
 
-Here somePath is relative to the location of module-factory. This is usually in the root node-modules, in the directory
-@franzzemen/module-factory. Thus, normally the path will begin with '../../../' back to the root of the project from
-which one can append the remaining path. To do this automatically so that it always works:
+Note:  For json loading, that is implicit because fs.readFile is leveraged.  For module loading, that is not the default
+behavior - the default behavior is a path relative to where the implementation is i.e. 
+node_modules/@franzzemen/module-factory/dist/mjs|cjs.  However, that would cause some headaches not only because of 
+having to figure that out each time, but because of the possibility that module-factory could be embedded in some 
+nested node_modules directory.  For this reason, all relative paths must be relative to the node process *launch* 
+directory
 
 ```` javascript
 import {join} from 'node:path';
