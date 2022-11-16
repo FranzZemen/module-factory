@@ -1,6 +1,6 @@
 {
   "name": "@franzzemen/module-factory",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "A factory to load modules and retrieve JSON, factory functions and constructors",
   "type": "module",
   "main": "./publish/dist/cjs/index.js",
