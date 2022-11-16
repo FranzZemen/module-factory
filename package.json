@@ -1,6 +1,6 @@
 {
   "name": "@franzzemen/module-factory",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "A factory to load modules and retrieve JSON, factory functions and constructors",
   "type": "module",
   "main": "./publish/dist/cjs/index.js",
@@ -31,8 +31,8 @@
   },
   "homepage": "https://github.com/FranzZemen/module-factory#readme",
   "devDependencies": {
-    "@franzzemen/gulp-base": "^17.0.10",
-    "@franzzemen/npmu": "^4.0.3",
+    "@franzzemen/gulp-base": "^17.0.11",
+    "@franzzemen/npmu": "^4.0.4",
     "@franzzemen/test": "^1.0.4",
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.0",
@@ -41,7 +41,7 @@
     "gulp": "^4.0.2",
     "gulp-mocha": "^8.0.0",
     "mocha": "^10.1.0",
-    "typescript": "^4.8.4"
+    "typescript": "^4.9.3"
   },
   "dependencies": {
     "fastest-validator": "^1.15.0",
