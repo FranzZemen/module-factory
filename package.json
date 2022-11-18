@@ -1,15 +1,15 @@
 {
   "name": "@franzzemen/module-factory",
-  "version": "5.0.2",
+  "version": "7.0.0",
   "description": "A factory to load modules and retrieve JSON, factory functions and constructors",
   "type": "module",
-  "main": "./publish/dist/cjs/index.js",
-  "module": "publish/dist/mjs/index.js",
-  "types": "publish/dist/mjs/index.d.ts",
+  "main": "./publish/cjs/index.js",
+  "module": "publish/mjs/index.js",
+  "types": "publish/mjs/index.d.ts",
   "exports": {
     ".": {
-      "import": "./publish/dist/mjs/index.js",
-      "require": "./publish/dist/cjs/index.js"
+      "import": "./publish/mjs/index.js",
+      "require": "./publish/cjs/index.js"
     }
   },
   "scripts": {
@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/FranzZemen/module-factory#readme",
   "devDependencies": {
-    "@franzzemen/gulp-base": "^17.0.11",
+    "@franzzemen/gulp-base": "^18.0.0",
     "@franzzemen/npmu": "^4.0.4",
     "@franzzemen/test": "^1.0.4",
     "@types/chai": "^4.3.4",
