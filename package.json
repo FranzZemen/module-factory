@@ -1,6 +1,6 @@
 {
   "name": "@franzzemen/module-factory",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "description": "A factory to load modules and retrieve JSON, factory functions and constructors",
   "type": "module",
   "main": "./publish/cjs/index.js",
@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/FranzZemen/module-factory#readme",
   "devDependencies": {
-    "@franzzemen/gulp-base": "^18.0.0",
+    "@franzzemen/gulp-base": "^19.0.1",
     "@franzzemen/npmu": "^4.0.4",
     "@franzzemen/test": "^1.0.4",
     "@types/chai": "^4.3.4",
