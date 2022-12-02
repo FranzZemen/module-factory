@@ -390,7 +390,7 @@ export async function loadFromModule<T>(moduleDef: ModuleDefinition, log: Module
               return validateRunTimeSchema<T>(moduleDef.moduleName, moduleDef, tt, log);
             });
         } else {
-          return Promise.resolve<T>(validateRunTimeSchema<T>(moduleDef.moduleName, moduleDef, t, log));
+          return validateRunTimeSchema<T>(moduleDef.moduleName, moduleDef, t, log);
         }
       } else {
         const err = new Error(`moduleDef.functionName ${moduleDef.functionName} provided but does not resolve to a function`);
@@ -406,7 +406,7 @@ export async function loadFromModule<T>(moduleDef: ModuleDefinition, log: Module
         } else {
           t = new constructorFunction();
         }
-        return Promise.resolve(validateRunTimeSchema<T>(moduleDef.moduleName, moduleDef, t, log));
+        return validateRunTimeSchema<T>(moduleDef.moduleName, moduleDef, t, log);
       } else {
         const err = new Error(`moduleDef.constructorName ${moduleDef.constructorName} provided but does not resolve to a constructor`);
         log.error(err);

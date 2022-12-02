@@ -32,7 +32,6 @@ describe('module-factory', () => {
           constructorName: 'Hello',
           functionName: 'Hello',
           propertyName: 'Hello',
-          asyncFactory: true,
           paramsArray: [
             'hell', 5.0, {}
           ]
@@ -375,7 +374,7 @@ describe('module-factory', () => {
         };
         const objPromise = loadJSONFromModule(moduleDef);
         objPromise.should.exist;
-        if (isPromise(objPromise)) {
+
           return objPromise
             .then(obj => {
               obj['prop'].should.equal('jsonStr');
@@ -385,9 +384,7 @@ describe('module-factory', () => {
               unreachableCode.should.be.true;
               return;
             });
-        } else {
-          objPromise['prop'].should.equal('jsonStr');
-        }
+
       });
       it('should load object from package', () => {
         const moduleDef: ModuleDefinition = {
@@ -576,11 +573,14 @@ describe('module-factory', () => {
       });
     });
     describe('Examples', () => {
-      it('Example 1: An example of loading from a .json file without validation, synchronously', () => {
+      it('Example 1: An example of loading from a .json file without validation', () => {
         type TestObj = { key: string, value: string };
-        const obj = loadJSONResource<TestObj>({
+        const promise = loadJSONResource<TestObj>({
           moduleName: join(_dirname, './example-json.json')
-        }) as TestObj;
+        })
+          .then((result: TestObj) => {
+          return;
+        })
       });
       it('Example 1a: Example 1 with a LoadSchema', () => {
         type TestObj = { key: string, value: string };
@@ -589,15 +589,18 @@ describe('module-factory', () => {
         const loadSchema: LoadSchema = {
           validationSchema: {
             key: {type: 'string'},
-            value: {type: 'number'}
+            value: {type: 'string'}
           }, useNewCheckerFunction: false
         };
 
         try {
-          const obj = loadJSONResource<TestObj>({
+          const promise = loadJSONResource<TestObj>({
             moduleName: join(_dirname, '/example-json.json'),
             loadSchema
-          }) as TestObj;
+          })
+            .then((result:TestObj)=> {
+              return;
+            })
           unreachableCode.should.be.true;
         } catch (err) {
           // Error expected;
