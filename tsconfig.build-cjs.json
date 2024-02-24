@@ -1,8 +1,0 @@
-{
-  "extends": "./tsconfig.ts-src.json",
-  "compilerOptions": {
-    "outDir": "build-cjs",
-    "module": "CommonJS",
-    "target": "ES2021"
-  }
-}

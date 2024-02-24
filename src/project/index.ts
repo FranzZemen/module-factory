@@ -1,4 +1,5 @@
-export {importModule} from './import-helper.cjs';
+import {getValidator} from "@franzzemen/fastest-validator-wrapper";
+
 
 import Validator, {AsyncCheckFunction, SyncCheckFunction, ValidationError, ValidationSchema} from 'fastest-validator';
 import {readFile} from 'node:fs/promises';
@@ -6,18 +7,19 @@ import {resolve} from 'node:path';
 import objectPath from 'object-path';
 import {pathToFileURL} from 'url';
 import {isPromise} from 'util/types';
-import {importModule} from './import-helper.cjs';
+import {importModule} from "./import-helper.cjs";
+//import {importModule} from "./import-helper.cjs";
 
 export interface ModuleFactoryLogger {
-  error(err, ...params);
+  error(err: any, ...params:any[]): any;
 
-  warn(data, message?: string, ...params);
+  warn(data: any, message?: string, ...params:any[]): any;
 
-  info(data, message?: string, ...params);
+  info(data: any, message?: string, ...params:any[]): any;
 
-  debug(data, message?: string, ...params);
+  debug(data:any, message?: string, ...params:any[]): any;
 
-  trace(data, message?: string, ...params);
+  trace(data:any, message?: string, ...params:any[]): any;
 }
 
 function isAsyncCheckFunction(check: any | AsyncCheckFunction | SyncCheckFunction): check is AsyncCheckFunction {
@@ -69,15 +71,15 @@ export class TypeOf extends Set<string> {
     return this._typeOf;
   }
 
-  add(value: string): this {
+  override add(value: string): this {
     throw new Error('TypeOf implementation of Set is immutable');
   }
 
-  clear() {
+  override clear() {
     throw new Error('TypeOf implementation of Set is immutable');
   }
 
-  delete(value: string): boolean {
+  override delete(value: string): boolean {
     throw new Error('TypeOf implementation of Set is immutable');
   }
 }
@@ -159,7 +161,7 @@ export const moduleDefinitionSchemaWrapper: ValidationSchema = {
 };
 
 
-const check = new Validator({useNewCustomCheckerFunction: true}).compile(moduleDefinitionSchema);
+const check = getValidator({useNewCustomCheckerFunction: true}).compile(moduleDefinitionSchema);
 
 export function validateModuleDefinition(def: ModuleDefinition): true | ValidationError[] {
   const result = check(def);
@@ -171,7 +173,7 @@ export function validateModuleDefinition(def: ModuleDefinition): true | Validati
 }
 
 
-async function validateRunTimeSchema<T>(moduleName: string, moduleDef: ModuleDefinition, obj, log: ModuleFactoryLogger = console): Promise<T> {
+async function validateRunTimeSchema<T>(moduleName: string, moduleDef: ModuleDefinition, obj:NonNullable<any>, log: ModuleFactoryLogger = console): Promise<T> {
   try {
     let validationCheck: AsyncCheckFunction | SyncCheckFunction;
     if (moduleDef.loadSchema) {
@@ -194,7 +196,7 @@ async function validateRunTimeSchema<T>(moduleName: string, moduleDef: ModuleDef
       } else {
         if (isLoadSchema(moduleDef.loadSchema)) {
           // This is the least performant way by 100x...encourage user to pass a cached check function
-          validationCheck = (new Validator({useNewCustomCheckerFunction: moduleDef.loadSchema.useNewCheckerFunction})).compile(moduleDef.loadSchema.validationSchema);
+          validationCheck = (getValidator({useNewCustomCheckerFunction: moduleDef.loadSchema.useNewCheckerFunction ?? false})).compile(moduleDef.loadSchema.validationSchema);
         } else {
           validationCheck = moduleDef.loadSchema;
         }
@@ -235,6 +237,8 @@ async function validateRunTimeSchema<T>(moduleName: string, moduleDef: ModuleDef
             log.error(err);
             return Promise.reject(err);
           }
+        } else {
+          return Promise.reject(new Error('Unreachable Code'));
         }
       }
     } else {
@@ -342,7 +346,7 @@ export function loadJSONFromModule<T>(moduleDef: ModuleDefinition, log: ModuleFa
         if (relativePath(moduleName)) {
           moduleName = pathToFileURL(moduleAbsolutePath(moduleName)).toString();
         }
-        return importModule(moduleName)
+        return import(moduleName)
           .then(module => {
             return loadJSONPropertyFromModule<T>(module, moduleDef, log);
           });
@@ -368,13 +372,13 @@ export async function loadFromModule<T>(moduleDef: ModuleDefinition, log: Module
       moduleName = pathToFileURL(moduleAbsolutePath(moduleName)).toString();
     }
     const module = await importModule(moduleName);
-    let t: T;
+    let t: T | Promise<T>;
     let factoryFunctionName = moduleDef.functionName;
     if (!factoryFunctionName && !moduleDef.constructorName) {
       factoryFunctionName = 'default';
     }
     if (factoryFunctionName) {
-      let factoryFunction: (...params) => T;
+      let factoryFunction: (...params: any[]) => T;
       factoryFunction = objectPath.get(module, factoryFunctionName);
       if (factoryFunction) {
         // Note:  Factory functions can be asynchronous
@@ -386,7 +390,7 @@ export async function loadFromModule<T>(moduleDef: ModuleDefinition, log: Module
         // Factory function can return a promise
         if (isPromise(t)) {
           return t
-            .then((tt: T) => {
+            .then((tt: any) => {
               return validateRunTimeSchema<T>(moduleDef.moduleName, moduleDef, tt, log);
             });
         } else {

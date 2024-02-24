@@ -1,8 +1,0 @@
-{
-  "extends": "./tsconfig.ts-test.json",
-  "compilerOptions": {
-    "outDir": "testing-cjs",
-    "module": "CommonJS",
-    "target": "ES6"
-  }
-}

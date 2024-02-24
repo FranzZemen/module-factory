@@ -2,12 +2,6 @@
   "name": "@franzzemen/module-factory",
   "version": "7.0.2",
   "description": "A factory to load modules and retrieve JSON, factory functions and constructors",
-  "type": "module",
-  "exports": {
-    ".": {
-      "import": "./src/project/index.ts"
-    }
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -27,20 +21,29 @@
   },
   "homepage": "https://github.com/FranzZemen/module-factory#readme",
   "devDependencies": {
-    "@franzzemen/test": "^3.0.1",
-    "@types/chai": "^4.3.12",
-    "@types/mocha": "^10.0.6",
-    "@types/node": "^20.11.20",
-    "@types/object-path": "^0.11.4",
-    "chai": "^5.1.0",
+    "@franzzemen/gulp-base": "^19.0.1",
+    "@franzzemen/npmu": "^4.0.4",
+    "@franzzemen/test": "^1.0.4",
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^18.11.9",
+    "chai": "^4.3.7",
     "gulp": "^4.0.2",
-    "gulp-mocha": "^10.0.0",
-    "mocha": "^10.3.0",
-    "typescript": "^5.3.3"
+    "gulp-mocha": "^8.0.0",
+    "mocha": "^10.1.0",
+    "typescript": "^4.9.3"
   },
   "dependencies": {
-    "@franzzemen/fastest-validator-wrapper": "^2.0.0",
-    "fastest-validator": "^1.17.0",
+    "fastest-validator": "^1.15.0",
     "object-path": "^0.11.8"
+  },
+  "main": "cjs/index.js",
+  "module": "mjs/index.js",
+  "types": "mjs/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./mjs/index.js",
+      "require": "./cjs/index.js"
+    }
   }
 }

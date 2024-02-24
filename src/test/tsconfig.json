@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "target": "ESNext",
+    "moduleResolution": "NodeNext",
+    "tsBuildInfoFile": "../../out/buildInfo/testTsInfo",
+    "declarationDir": "../../out/test/types",
+    "outDir": "../../out/test"
+  },
+  "include": ["**/*"]
+}

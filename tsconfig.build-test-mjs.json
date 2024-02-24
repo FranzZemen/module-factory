@@ -1,8 +1,0 @@
-{
-  "extends": "./tsconfig.ts-test.json",
-  "compilerOptions": {
-    "outDir": "testing-mjs",
-    "module": "esnext",
-    "target": "ES2021"
-  }
-}
