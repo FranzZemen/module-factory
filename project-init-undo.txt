@@ -1,7 +1,6 @@
-	Undo git commit as necessary (git revert?)
-	Undo git add * as necessary
-	rollback ./package.json to version 7.0.2 in git
-	Undo git commit as necessary (git revert?)
-	Undo git add * as necessary
+	clean output for copied json
+	clean output for copied json
 	Undo write to ./out/package.json
 	Undo write to ./out/project/package.json
+	clean output for copied json
+	clean output for copied json
