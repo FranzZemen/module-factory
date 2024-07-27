@@ -27,15 +27,15 @@
   },
   "homepage": "https://github.com/FranzZemen/module-factory#readme",
   "devDependencies": {
-    "@franzzemen/build-system": "^5.7.2",
+    "@franzzemen/build-system": "^6.0.1",
     "@franzzemen/test": "^3.0.1",
     "@types/chai": "^4.3.16",
     "@types/mocha": "^10.0.7",
-    "@types/node": "^20.14.11",
+    "@types/node": "^20.14.12",
     "@types/object-path": "^0.11.4",
     "chai": "^5.1.1",
-    "mocha": "^10.6.0",
-    "typescript": "^5.5.3"
+    "mocha": "^10.7.0",
+    "typescript": "^5.5.4"
   },
   "dependencies": {
     "@franzzemen/fastest-validator-wrapper": "^2.2.2",
