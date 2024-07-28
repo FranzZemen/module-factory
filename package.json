@@ -38,8 +38,8 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@franzzemen/fastest-validator-wrapper": "^2.2.5",
-    "@franzzemen/npmu": "^6.0.1",
+    "@franzzemen/fastest-validator-wrapper": "^2.2.6",
+    "@franzzemen/npmu": "^6.0.2",
     "fastest-validator": "^1.19.0",
     "object-path": "^0.11.8"
   },

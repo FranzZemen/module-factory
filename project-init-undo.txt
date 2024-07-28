@@ -3,7 +3,7 @@
 	Undo git push manually?
 	Undo git commit as necessary (git revert?)
 	Undo git add * as necessary
-	rollback ./package.json to version 10.0.1 in git
+	rollback ./package.json to version 10.0.2 in git
 	Undo git commit as necessary (git revert?)
 	Undo git add * as necessary
 	clean output for copied json
