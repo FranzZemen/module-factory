@@ -27,11 +27,11 @@
   },
   "homepage": "https://github.com/FranzZemen/module-factory#readme",
   "devDependencies": {
-    "@franzzemen/build-system": "^6.0.6",
+    "@franzzemen/build-system": "^9.0.4",
     "@franzzemen/test": "^3.0.1",
     "@types/chai": "^4.3.17",
     "@types/mocha": "^10.0.7",
-    "@types/node": "^22.2.0",
+    "@types/node": "^22.5.0",
     "@types/object-path": "^0.11.4",
     "chai": "^5.1.1",
     "mocha": "^10.7.3",
