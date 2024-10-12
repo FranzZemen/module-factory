@@ -27,18 +27,18 @@
   },
   "homepage": "https://github.com/FranzZemen/module-factory#readme",
   "devDependencies": {
-    "@franzzemen/build-system": "^9.0.4",
+    "@franzzemen/build-system": "^12.1.1",
     "@franzzemen/test": "^3.0.1",
-    "@types/chai": "^4.3.17",
-    "@types/mocha": "^10.0.7",
-    "@types/node": "^22.5.0",
+    "@types/chai": "^5.0.0",
+    "@types/mocha": "^10.0.9",
+    "@types/node": "^22.7.5",
     "@types/object-path": "^0.11.4",
     "chai": "^5.1.1",
     "mocha": "^10.7.3",
-    "typescript": "^5.5.4"
+    "typescript": "^5.6.3"
   },
   "dependencies": {
-    "@franzzemen/fastest-validator-wrapper": "^2.2.8",
+    "@franzzemen/fastest-validator-wrapper": "^2.2.17",
     "@franzzemen/npmu": "^6.0.2",
     "fastest-validator": "^1.19.0",
     "object-path": "^0.11.8"
