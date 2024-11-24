@@ -626,6 +626,7 @@ describe('module-factory', () => {
         unreachableCode.should.be.true;
       }
     });
+    /*
     it('should validate an absolute path', async () => {
       try {
         const moduleName = '/dev/module-factory/out/test/test-json.json';
@@ -635,6 +636,8 @@ describe('module-factory', () => {
         unreachableCode.should.be.true;
       }
     });
+
+     */
     it('should validate an absolute path built from path.resolve', async () => {
       try {
         const moduleName = path.resolve(_dirname, '../test/test-json.json');

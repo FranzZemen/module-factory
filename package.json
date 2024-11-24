@@ -5,7 +5,14 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./src/project/index.ts"
+      "types": "./out/project/types/index.d.js",
+      "import": "./out/project/index.js"
+    }
+  },
+  "imports": {
+    "#project": {
+      "types": "./out/project/types/project-index.d.js",
+      "import": "./out/project/project-index.js"
     }
   },
   "scripts": {
@@ -27,19 +34,19 @@
   },
   "homepage": "https://github.com/FranzZemen/module-factory#readme",
   "devDependencies": {
-    "@franzzemen/build-system": "^12.1.1",
+    "@franzzemen/build-system": "^14.0.6",
     "@franzzemen/test": "^3.0.1",
-    "@types/chai": "^5.0.0",
-    "@types/mocha": "^10.0.9",
-    "@types/node": "^22.7.5",
+    "@types/chai": "^5.0.1",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.9.3",
     "@types/object-path": "^0.11.4",
-    "chai": "^5.1.1",
-    "mocha": "^10.7.3",
-    "typescript": "^5.6.3"
+    "chai": "^5.1.2",
+    "mocha": "^10.8.2",
+    "typescript": "^5.7.2"
   },
   "dependencies": {
-    "@franzzemen/fastest-validator-wrapper": "^2.2.17",
-    "@franzzemen/npmu": "^6.0.2",
+    "@franzzemen/fastest-validator-wrapper": "^2.2.26",
+    "@franzzemen/npmu": "^8.0.2",
     "fastest-validator": "^1.19.0",
     "object-path": "^0.11.8"
   },
